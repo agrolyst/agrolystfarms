@@ -221,3 +221,9 @@ a.btn:hover .site-action-icon,.nav-cta:hover .site-action-icon,.plain:hover .sit
 @media(max-width:900px){.registry-layout{grid-template-columns:1fr}.registry-highlight{min-height:310px}.registry-contact-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.site-back-to-top{right:15px;bottom:76px;width:42px;height:42px}.site-link-icon{width:15px;height:15px}.registry-facts,.registry-contact-grid{grid-template-columns:1fr}.registry-fact,.registry-contact-card{padding:21px}.registry-highlight{padding:27px 23px;min-height:0}.registry-status{align-items:flex-start;line-height:1.5}.scroll-reveal{transition-duration:.48s}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scroll-reveal,.site-back-to-top,.site-action-icon,.site-scroll-progress{transition:none!important;transform:none!important}.scroll-reveal:not(.is-visible){opacity:1}.site-back-to-top{scroll-behavior:auto}}
+
+.range-card .card-copy>.site-card-icon{margin:0 0 14px;width:42px;height:42px;flex-basis:42px;border-radius:13px}
+.range-card .card-copy>.site-card-icon svg{width:21px;height:21px}
+.values>div>span>.site-card-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;margin:0 0 10px}
+.values>div>span>.site-card-icon svg{width:18px;height:18px}
+.shop-product-card .card-copy>.site-card-icon{width:42px;height:42px;flex-basis:42px;border-radius:13px;margin:0 0 14px}
