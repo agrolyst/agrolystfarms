@@ -9,11 +9,14 @@ This folder contains the database migration and frontend modules for a Supabase-
 - `migrations/20261019174846_agrolyst_checkout_order_rpc.sql` — transactional order creation with server-side price, inventory and delivery checks.
 - `migrations/20261019180640_agrolyst_payment_receipts.sql` — private receipt storage and public-configurable bank transfer settings.
 - `migrations/20261019181412_restrict_profile_trigger_function_execution.sql` — removes client RPC access to the internal auth profile trigger.
+- `migrations/20261019183732_agrolyst_owner_profile_setting.sql` and `migrations/20261019184026_agrolyst_owner_profile_setting.sql` — the public, optional owner profile setting and read policy.
 - `functions/create-order/index.ts` — source of the deployed `create-order` Edge Function.
 - `functions/upload-payment-receipt/index.ts` — source of the deployed private receipt-upload Edge Function.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
+- `../catalog-page.js` — renders the Supabase catalogue on `products.html`.
+- `../owner-profile.js` — optionally fetches the owner name, biography and approved portrait from the `owner_profile` setting.
 
 ## Apply the migration
 
@@ -29,6 +32,27 @@ To go live with sales:
 2. Add product images to Supabase Storage or another public HTTPS image host, then save those URLs in `products.image_url` / `product_images.image_url`.
 3. Configure delivery zones, areas, delivery fees and minimum order values in `delivery_zones`.
 4. Add verified bank transfer instructions to the customer-facing order follow-up process. Do not send money to unverified bank details.
+
+
+## Owner profile
+
+The website includes a leadership/owner section. The live profile is read from the `store_settings` row with key `owner_profile`, so the site does not invent an owner's name or use a stock photo as their portrait. After the owner approves their public details, fill this row in Supabase SQL Editor, replacing the example values:
+
+```sql
+update public.store_settings
+set value = jsonb_build_object(
+  'display_name', 'OWNER NAME',
+  'role_title', 'Founder and Owner',
+  'biography', 'OWNER-APPROVED BIOGRAPHY',
+  'portrait_url', 'https://YOUR-APPROVED-PUBLIC-PORTRAIT-URL',
+  'quote', 'OWNER-APPROVED QUOTE',
+  'image_alt', 'Portrait of OWNER NAME, founder of Agrolyst Integrated Farms and Services'
+),
+updated_at = now()
+where key = 'owner_profile';
+```
+
+Use the owner's approved portrait hosted at a stable HTTPS URL. No real owner name or portrait was supplied at the time this section was built.
 
 ## Security design and important next step
 
