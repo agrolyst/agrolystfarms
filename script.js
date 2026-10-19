@@ -50,7 +50,7 @@ document.getElementById("whatsappForm")?.addEventListener("click", () => {
 });
 document.getElementById("contactForm")?.addEventListener("submit", event => {
   event.preventDefault();
-  if (BUSINESS_EMAIL.includes("replace-with-your-email")) {
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(BUSINESS_EMAIL)) {
     alert("Please add Agrolyst Farms' real business email in script.js before launch.");
     return;
   }
