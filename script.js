@@ -1,7 +1,7 @@
 // Configure these values before launch.
-const BUSINESS_EMAIL = "replace-with-your-email@example.com";
+const BUSINESS_EMAIL = "support@agrolystfarms.com";
 // International digits only, e.g. Nigeria: 2348012345678 (no +, spaces or leading local 0).
-const WHATSAPP_NUMBER = "2340000000000";
+const WHATSAPP_NUMBER = "2349160008433";
 
 function whatsappUrl(message) {
   const number = String(WHATSAPP_NUMBER).replace(/\D/g, "");
