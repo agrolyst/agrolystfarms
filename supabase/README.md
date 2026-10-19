@@ -6,6 +6,8 @@ This folder contains the database migration and frontend modules for a Supabase-
 
 - `migrations/20261019173809_agrolyst_shop_foundation.sql` — schema, initial RLS rules and store settings.
 - `migrations/20261019174005_shop_fk_indexes_and_profile_trigger.sql` — foreign-key indexes and profile bootstrap trigger.
+- `migrations/20261019174846_agrolyst_checkout_order_rpc.sql` — transactional order creation with server-side price, inventory and delivery checks.
+- `functions/create-order/index.ts` — source of the deployed `create-order` Edge Function.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
@@ -14,11 +16,16 @@ This folder contains the database migration and frontend modules for a Supabase-
 
 These migrations have been applied to the existing Agrolyst Supabase project (ref: `rcrgooivgssuerrgnuqw`) and the created tables were verified. For a fresh environment, apply migrations in timestamp order. Back up important data before applying schema changes to another production project.
 
-After applying:
-1. Confirm the tables exist under Database > Tables.
-2. Add categories and products through the dashboard or an authenticated admin workflow.
-3. Add public product images to Supabase Storage and save their public URLs to `products.image_url` / `product_images.image_url`.
-4. Replace any existing frontend product cards with calls to `fetchCategories()` and `fetchCatalog()`.
+Current setup status:
+1. The migrations have been applied to the existing Agrolyst Supabase project and the tables were verified.
+2. The `create-order` Edge Function is deployed and validates checkout input before using the transactional database function.
+3. The homepage product section fetches active catalogue items from Supabase. No products or prices are seeded in SQL.
+
+To go live with sales:
+1. Add product categories and products in Supabase. Set product prices, unit labels, published status and stock rules.
+2. Add product images to Supabase Storage or another public HTTPS image host, then save those URLs in `products.image_url` / `product_images.image_url`.
+3. Configure delivery zones, areas, delivery fees and minimum order values in `delivery_zones`.
+4. Add verified bank transfer instructions to the customer-facing order follow-up process. Do not send money to unverified bank details.
 
 ## Security design and important next step
 
@@ -26,8 +33,8 @@ After applying:
 - Anonymous users can read only active catalogue rows and active delivery zones.
 - Customer-facing roles have no direct permission to insert orders or set order/payment status. This is intentional: order creation and payment verification must be implemented in a trusted server-side Edge Function, which validates the database prices, inventory, minimum delivery order and delivery zone before writing an order.
 - Do not expose the Supabase service-role or secret key in website code.
-- Payment integrations remain disabled until real merchant credentials and webhook verification are configured.
+- Paystack, Flutterwave, pay-on-delivery and receipt upload are not active yet; they need merchant credentials, verified webhooks and storage policies. The current checkout supports order submission with bank transfer marked unpaid.
 - Bank details are not stored in source code; add those to a protected admin setting before displaying them during checkout.
 - No products or product prices are seeded in the migration.
 
-The initial delivery minimum is configurable as a store setting and delivery-zone field. Confirm the commercial policy before enabling checkout.
+The default delivery-zone minimum is ₦10,000, but actual delivery zones and fees must be configured in `delivery_zones`. Customers may use farm pickup while delivery coverage is being configured.
