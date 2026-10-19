@@ -8,6 +8,7 @@ This folder contains the database migration and frontend modules for a Supabase-
 - `migrations/20261019174005_shop_fk_indexes_and_profile_trigger.sql` — foreign-key indexes and profile bootstrap trigger.
 - `migrations/20261019174846_agrolyst_checkout_order_rpc.sql` — transactional order creation with server-side price, inventory and delivery checks.
 - `migrations/20261019180640_agrolyst_payment_receipts.sql` — private receipt storage and public-configurable bank transfer settings.
+- `migrations/20261019181412_restrict_profile_trigger_function_execution.sql` — removes client RPC access to the internal auth profile trigger.
 - `functions/create-order/index.ts` — source of the deployed `create-order` Edge Function.
 - `functions/upload-payment-receipt/index.ts` — source of the deployed private receipt-upload Edge Function.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
