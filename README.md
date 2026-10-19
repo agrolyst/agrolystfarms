@@ -1,16 +1,22 @@
-# Agrolyst Integrated Farms
+# Agrolyst Integrated Farms and Services
 
 Official Agrolyst Farms website and Supabase-powered product catalogue.
 
-## Website
+## Public website pages
+- `index.html` — homepage, live Supabase catalogue, cart and checkout.
+- `about.html` — company profile, mission, vision, philosophy and owner/leadership section.
+- `products.html` — product ranges plus catalogue fetched from Supabase.
+- `partnerships.html` — manufacturer, supplier, farmer, distributor, investor and institutional partnership opportunities.
+- `privacy.html` and `agreement.html` — privacy and terms pages.
+- `auth.html`, `callback.html`, `account.html` — customer authentication and account flow.
 
-- Homepage and live catalogue: `index.html` (products are fetched from Supabase; no individual products are hardcoded).
-- Customer sign-in, account and legal pages: `auth.html`, `account.html`, `privacy.html`, `agreement.html`.
-- SEO: page-specific titles and descriptions, Google site verification tag, Open Graph metadata, homepage WebSite/OnlineStore structured data, `sitemap.xml` and `robots.txt`.
-- Brand assets: keep `Agrolyst Logo.jpeg` as the official logo, favicon and social/structured-data image.
+## SEO and brand
+- Page-specific titles, descriptions, canonical URLs and Google verification meta tag.
+- Homepage `WebSite` and `OnlineStore` structured data with the official Agrolyst logo.
+- Open Graph/social preview metadata, `sitemap.xml` and `robots.txt`.
+- Keep `Agrolyst Logo.jpeg` as the official logo, favicon and social/structured-data image.
 
-## Supabase shop setup
+## Supabase
+All catalogue product names, images, prices, stock, and wholesale pricing are loaded from Supabase rather than hardcoded in product-card HTML. Read [the Supabase shop guide](supabase/README.md) for schema, checkout, receipt upload, delivery-zone and owner-profile setup.
 
-See [Supabase shop README](supabase/README.md) for database migrations, catalog API, deployed order creation function, required product setup, delivery-zone configuration and payment limitations.
-
-Products, their categories, prices, quantity pricing, inventory and availability must be maintained in Supabase rather than in the website source.
+Google decides what it displays in Search after it crawls the live deployment. Deploy the latest default-branch changes, then check URLs and submit the sitemap in Google Search Console.
