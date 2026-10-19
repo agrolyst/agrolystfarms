@@ -24,4 +24,6 @@
 const client=window.supabase.createClient("https://rcrgooivgssuerrgnuqw.supabase.co","sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD");
 (async()=>{const {data,error}=await client.auth.getUser();if(error||!data.user){location.replace("auth.html");return;}const u=data.user;document.getElementById("accountName").textContent=u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"customer";document.getElementById("accountEmail").textContent=u.email||"";})();
 document.getElementById("signOut").addEventListener("click",async()=>{const b=document.getElementById("signOut"),s=document.getElementById("accountStatus");b.disabled=true;s.textContent="Signing out…";const {error}=await client.auth.signOut();if(error){s.textContent=error.message;b.disabled=false;return;}location.replace("index.html");});
-</script></body></html>
+</script><script src="https://unpkg.com/lucide@latest" defer></script>
+<script src="site-effects.js" defer></script>
+</body></html>
