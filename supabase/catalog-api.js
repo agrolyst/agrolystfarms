@@ -36,3 +36,17 @@ export function priceForQuantity(product, quantity) {
     .sort((a, b) => Number(b.min_quantity) - Number(a.min_quantity));
   return Number(tiers[0]?.unit_price ?? product.base_price ?? 0);
 }
+
+
+/** Fetch specific product IDs from the database for items already in a customer's cart. */
+export async function fetchProductsByIds(ids = []) {
+  const uniqueIds = [...new Set(ids)].filter(id => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id));
+  if (!uniqueIds.length) return [];
+  const { data, error } = await supabase
+    .from("products")
+    .select("id,name,slug,sku,short_description,description,unit_label,unit_quantity,currency,base_price,image_url,is_featured,category_id,categories(id,name,slug),product_images(id,image_url,alt_text,sort_order),product_prices(id,min_quantity,unit_price,label,valid_from,valid_until),inventory(quantity_on_hand,quantity_reserved,track_stock)")
+    .eq("status", "active")
+    .in("id", uniqueIds);
+  if (error) throw error;
+  return data ?? [];
+}
