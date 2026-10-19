@@ -5,7 +5,7 @@ const el = (id) => document.getElementById(id);
 const productGrid = el("productGrid");
 if (productGrid) {
   const cartKey = "agrolyst-shop-cart-v1";
-  const state = { page: 0, pageSize: 24, count: 0, search: "", categoryId: "", loading: false, products: new Map(), zones: [], cart: readCart(), subtotal: 0, fee: 0, minimum: 0 };
+  const state = { page: 0, pageSize: 24, count: 0, search: "", categoryId: "", loading: false, products: new Map(), zones: [], cart: readCart(), subtotal: 0, fee: 0, minimum: 0, bankDetails: null, currentOrder: null };
   const naira = (value) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 }).format(Number(value) || 0);
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
   const safeImage = (url) => {
@@ -79,6 +79,29 @@ if (productGrid) {
       el("deliveryFeeMessage").textContent = "Delivery areas have not been configured yet. Please choose farm pickup or contact Agrolyst to arrange delivery.";
     }
     updateDeliverySummary();
+  }
+  async function loadBankDetails() {
+    const { data, error } = await supabase.from("store_settings").select("value").eq("key", "bank_transfer_details").maybeSingle();
+    if (error) {
+      console.warn("Bank-transfer instructions are not available yet.", error);
+      state.bankDetails = null;
+    } else state.bankDetails = data?.value || null;
+    renderBankTransferDetails();
+  }
+  function renderBankTransferDetails() {
+    const target = el("bankTransferInstructions");
+    if (!target) return;
+    const d = state.bankDetails || {};
+    if (d.bank_name && d.account_name && d.account_number) {
+      target.innerHTML = `<h4>Official Agrolyst bank-transfer details</h4>
+        <p><strong>Bank:</strong> ${escapeHtml(d.bank_name)}</p>
+        <p><strong>Account name:</strong> ${escapeHtml(d.account_name)}</p>
+        <p><strong>Account number:</strong> ${escapeHtml(d.account_number)}</p>
+        ${d.instructions ? `<p>${escapeHtml(d.instructions)}</p>` : ""}
+        <p>After transferring, upload your payment receipt below. Your order remains unpaid until the team verifies it.</p>`;
+    } else {
+      target.innerHTML = "<h4>Bank transfer instructions</h4><p>Agrolyst has not published verified bank details on the website yet. Please do not transfer money until the team confirms the official account details directly.</p>";
+    }
   }
   async function loadProducts({ append = false } = {}) {
     if (state.loading) return;
@@ -313,6 +336,10 @@ if (productGrid) {
       if (!data?.success || !data.order?.order_number) throw new Error("The order response could not be confirmed. Please contact Agrolyst before retrying.");
       el("confirmedOrderNumber").textContent = data.order.order_number;
       el("confirmedOrderTotal").textContent = `Order total: ${naira(data.order.total)}. Payment status: awaiting bank transfer.`;
+      state.currentOrder = { order_number: data.order.order_number, phone: el("checkoutPhone").value };
+      el("receiptStatus").textContent = "";
+      el("receiptUploadForm").reset();
+      renderBankTransferDetails();
       el("checkoutResult").hidden = false;
       el("checkoutPanel").hidden = true;
       el("cartLines").innerHTML = "";
@@ -330,7 +357,40 @@ if (productGrid) {
       button.textContent = "Place order ↗";
     }
   });
+  el("receiptUploadForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.currentOrder) { el("receiptStatus").textContent = "Place an order first, then submit its receipt."; return; }
+    const file = el("receiptFile").files?.[0];
+    if (!file) { el("receiptStatus").textContent = "Choose a receipt file first."; return; }
+    if (file.size > 5 * 1024 * 1024) { el("receiptStatus").textContent = "The receipt must be 5 MB or smaller."; return; }
+    const button = el("uploadReceiptButton");
+    button.disabled = true;
+    button.textContent = "Uploading receipt…";
+    el("receiptStatus").textContent = "Submitting your receipt securely…";
+    try {
+      const formData = new FormData();
+      formData.set("order_number", state.currentOrder.order_number);
+      formData.set("customer_phone", state.currentOrder.phone);
+      formData.set("receipt", file);
+      const { data, error } = await supabase.functions.invoke("upload-payment-receipt", { body: formData });
+      if (error) {
+        let detail = error.message || "Receipt submission failed.";
+        try { const json = await error.context?.json(); if (json?.error) detail = json.error; } catch { /* use message */ }
+        throw new Error(detail);
+      }
+      if (!data?.success) throw new Error(data?.error || "Receipt submission could not be confirmed.");
+      el("receiptStatus").textContent = data.message || "Receipt received and awaiting verification.";
+      el("receiptUploadForm").reset();
+    } catch (error) {
+      console.error("Receipt upload failed", error);
+      el("receiptStatus").textContent = error.message || "Receipt submission failed. Please try again.";
+    } finally {
+      button.disabled = false;
+      button.textContent = "Submit payment receipt ↗";
+    }
+  });
   el("finishOrder").addEventListener("click", () => {
+    state.currentOrder = null;
     el("checkoutResult").hidden = true;
     el("checkoutPanel").hidden = true;
     el("checkoutStart").hidden = false;
@@ -344,6 +404,7 @@ if (productGrid) {
   el("preferredDate").min = [today.getFullYear(), String(today.getMonth()+1).padStart(2,"0"), String(today.getDate()).padStart(2,"0")].join("-");
   loadCategories();
   loadZones();
+  loadBankDetails();
   void loadProducts();
   void renderCart();
 }
