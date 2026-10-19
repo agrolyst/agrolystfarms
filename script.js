@@ -1,11 +1,11 @@
-// Configure these values before launch.
+// Public customer-support channels for Agrolyst Integrated Farms and Services.
 const BUSINESS_EMAIL = "support@agrolystfarms.com";
 // International digits only, e.g. Nigeria: 2348012345678 (no +, spaces or leading local 0).
 const WHATSAPP_NUMBER = "2349160008433";
 
 function whatsappUrl(message) {
   const number = String(WHATSAPP_NUMBER).replace(/\D/g, "");
-  if (!number || number === "2340000000000") {
+  if (!/^234\\d{10}$/.test(number)) {
     alert("Please add Agrolyst Farms' real WhatsApp number in script.js before launch.");
     return null;
   }
