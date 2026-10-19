@@ -34,7 +34,7 @@ To go live with sales:
 
 - RLS is enabled for all tables.
 - Anonymous users can read only active catalogue rows and active delivery zones.
-- Customer-facing roles have no direct permission to insert orders or set order/payment status. This is intentional: order creation and payment verification must be implemented in a trusted server-side Edge Function, which validates the database prices, inventory, minimum delivery order and delivery zone before writing an order.
+- Customer-facing roles have no direct permission to insert orders or set order/payment status. This is intentional: the deployed `create-order` Edge Function validates database prices, inventory, minimum delivery order and delivery zone before writing an order. Receipt uploads use a separate Edge Function and remain pending until a person verifies payment.
 - Do not expose the Supabase service-role or secret key in website code.
 - Bank transfer order submission and private receipt upload are active. Uploaded receipts remain pending manual verification. Paystack, Flutterwave and pay-on-delivery are not active yet; these require their credentials, server-side verification/webhooks and explicit enablement.
 - Bank details are not stored in source code; add those to a protected admin setting before displaying them during checkout.
