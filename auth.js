@@ -5,6 +5,8 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const form = document.getElementById("authForm");
 const statusEl = document.getElementById("status");
 const modeLink = document.getElementById("switchMode");
+// If a valid session already exists, skip the sign-in page.
+(async () => { const { data } = await client.auth.getSession(); if (data.session) location.replace("index.html"); })();
 let mode = location.hash === "#signup" ? "signup" : "signin";
 function setStatus(message, error = true) { statusEl.textContent = message; statusEl.style.color = error ? "#9b3c23" : "#176d37"; }
 function renderMode() {
@@ -32,7 +34,7 @@ form.addEventListener("submit", async e => {
       const { error } = await client.auth.signInWithPassword({email, password});
       if (error) throw error;
       setStatus("Signed in successfully. Redirecting…", false);
-      location.href = "index.html";
+      location.replace("index.html");
     }
   } catch (error) { setStatus(error.message || "Authentication failed."); }
 });
