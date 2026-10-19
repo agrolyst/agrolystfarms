@@ -127,8 +127,15 @@
       <p id="checkoutStatus" class="shop-status" role="status" aria-live="polite"></p>
     </form>
   </div>
-  <div id="checkoutResult" class="checkout-result" hidden role="status" aria-live="polite">
-    <h3>Thank you. Your order was received.</h3><p>Order reference: <strong id="confirmedOrderNumber"></strong></p><p id="confirmedOrderTotal"></p><p>Bank transfer details are not published until verified. Please wait for Agrolyst to confirm the official payment instructions before transferring funds.</p><button class="btn green" type="button" id="finishOrder">Continue shopping</button>
+  <div id="checkoutResult" class="checkout-result" hidden>
+    <h3>Thank you. Your order was received.</h3><p>Order reference: <strong id="confirmedOrderNumber"></strong></p><p id="confirmedOrderTotal"></p>
+    <div id="bankTransferInstructions" class="bank-transfer-instructions" aria-live="polite">Official bank transfer instructions will be shown here when configured.</div>
+    <form id="receiptUploadForm" class="receipt-upload-form">
+      <h4>Already transferred? Upload your receipt.</h4><p>Use the same phone number you entered at checkout. JPG, PNG, WebP and PDF files up to 5 MB are accepted.</p>
+      <label for="receiptFile">Payment receipt *</label><input id="receiptFile" name="receipt" type="file" required accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf">
+      <button class="btn wa full" id="uploadReceiptButton" type="submit">Submit payment receipt ↗</button><p id="receiptStatus" class="shop-status" role="status" aria-live="polite"></p>
+    </form>
+    <p>Uploaded receipts are private and remain pending until Agrolyst verifies the transfer.</p><button class="btn green" type="button" id="finishOrder">Continue shopping</button>
   </div>
 </section></div></section>
 <section class="section approach" id="approach"><div class="container approach-grid"><div class="approach-image"><div><small>OUR APPROACH</small><h3>Thoughtful farming.<br>Long-term value.</h3></div></div><div><div class="eyebrow light"><i></i>OUR COMMITMENT</div><h2>Growing with care.<br><em>Working with purpose.</em></h2><p>Strong agricultural relationships begin with trust. We are committed to building a business that listens to customers, communicates clearly and continually works to improve how it serves the market.</p><ul><li><b>✓</b><span><strong>Clear communication</strong><small>Practical answers on availability, orders and supply needs.</small></span></li><li><b>✓</b><span><strong>Relationship-led service</strong><small>Building dependable connections with customers and partners.</small></span></li><li><b>✓</b><span><strong>Continuous improvement</strong><small>Working toward responsible and resilient agricultural operations.</small></span></li></ul><a class="btn outline" href="#contact">Start a conversation ↗</a></div></div></section>
