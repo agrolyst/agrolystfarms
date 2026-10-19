@@ -227,3 +227,5 @@ a.btn:hover .site-action-icon,.nav-cta:hover .site-action-icon,.plain:hover .sit
 .values>div>span>.site-card-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;margin:0 0 10px}
 .values>div>span>.site-card-icon svg{width:18px;height:18px}
 .shop-product-card .card-copy>.site-card-icon{width:42px;height:42px;flex-basis:42px;border-radius:13px;margin:0 0 14px}
+
+.values>div>span{display:block}
