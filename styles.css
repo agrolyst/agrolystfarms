@@ -4,3 +4,9 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
 /* Compact official logo sizing and consistent wordmark alignment */
 .brand{gap:8px}.brand small{font-size:.52rem;letter-spacing:.06em;line-height:1.2;max-width:220px}.foot-main .brand-logo{width:36px;height:36px;max-width:36px;max-height:36px;flex-basis:36px}@media(max-width:720px){.brand-logo{width:36px;height:36px;max-width:36px;max-height:36px;flex-basis:36px}.brand small{font-size:.47rem;letter-spacing:.04em}}
+
+/* Additional Agrolyst product and service categories */
+.cages{background-image:url('https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=900&q=80')}
+.equipment{background-image:url('https://images.unsplash.com/photo-1589927986089-35812388d1f4?auto=format&fit=crop&w=900&q=80')}
+.support{background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80')}
+@media(min-width:721px){.cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
