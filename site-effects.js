@@ -1,0 +1,183 @@
+/* Agrolyst shared iconography, scroll reveals and page utilities.
+   Uses Lucide's open-source outline icons loaded from the CDN. */
+(() => {
+  "use strict";
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const icon = (name, className = "") => {
+    const node = document.createElement("i");
+    node.setAttribute("data-lucide", name);
+    node.setAttribute("aria-hidden", "true");
+    if (className) node.className = className;
+    return node;
+  };
+
+  const addIcon = (container, name, className, prepend = true) => {
+    if (!container || container.querySelector(":scope > [data-lucide], :scope > .site-added-icon")) return;
+    const node = icon(name, className);
+    node.classList.add("site-added-icon");
+    if (prepend) container.insertBefore(node, container.firstChild);
+    else container.appendChild(node);
+  };
+
+  const iconForLabel = (raw) => {
+    const value = (raw || "").toLowerCase().replace(/\s+/g, " ").trim();
+    if (/home|homepage/.test(value)) return "house";
+    if (/product|catalog|shop|feed|equipment|range/.test(value)) return "package";
+    if (/about|who we are|our story|company/.test(value)) return "sprout";
+    if (/partner|collaborat|distribution/.test(value)) return "handshake";
+    if (/contact|enquir|message|whatsapp/.test(value)) return "message-circle";
+    if (/account|sign in|sign out|owner|leadership|team/.test(value)) return "user-round";
+    if (/vision|future/.test(value)) return "eye";
+    if (/mission|purpose|commitment|goal/.test(value)) return "target";
+    if (/philosophy|market to farm/.test(value)) return "compass";
+    if (/support|technical|consult/.test(value)) return "wrench";
+    if (/quality|reliable|trust|integrity/.test(value)) return "badge-check";
+    if (/education|training|farmer/.test(value)) return "graduation-cap";
+    if (/growth|grow|sustain|enterprise/.test(value)) return "trending-up";
+    if (/land|farm|field|livestock|poultry|egg|meat/.test(value)) return "wheat";
+    if (/privacy|secure|security/.test(value)) return "shield-check";
+    if (/terms|policy|legal/.test(value)) return "file-text";
+    if (/address|location|office/.test(value)) return "map-pin";
+    if (/email/.test(value)) return "mail";
+    if (/phone|call/.test(value)) return "phone";
+    if (/registry|cac|registered|incorporat/.test(value)) return "file-badge";
+    if (/arrow|explore|browse|learn more|read more|view all/.test(value)) return "arrow-up-right";
+    return null;
+  };
+
+  const initialiseIcons = () => {
+    // Section labels: use a small outline icon in place of repeated decorative dots.
+    document.querySelectorAll(".eyebrow").forEach((label) => {
+      const existing = label.querySelector(":scope > [data-lucide]");
+      if (existing) return;
+      const name = iconForLabel(label.textContent);
+      if (!name) return;
+      const dot = label.querySelector(":scope > i:not([data-lucide])");
+      if (dot) dot.remove();
+      addIcon(label, name, "site-section-icon", true);
+    });
+
+    // Navigation links receive consistent, light-weight outline icons.
+    document.querySelectorAll("header nav a, .legal-top a").forEach((link) => {
+      if (link.querySelector("[data-lucide]")) return;
+      const href = (link.getAttribute("href") || "").toLowerCase();
+      const text = link.textContent || "";
+      let name = iconForLabel(text);
+      if (href.includes("about")) name = "sprout";
+      else if (href.includes("products") || href.includes("#products")) name = "package";
+      else if (href.includes("partnership")) name = "handshake";
+      else if (href.includes("auth") || href.includes("account")) name = "user-round";
+      else if (href.includes("#contact") || /contact/i.test(text)) name = "message-circle";
+      else if (href === "index.html" || href === "#home" || href === "#top") name = "house";
+      if (name) addIcon(link, name, "site-link-icon", true);
+    });
+
+    // Purpose, product range and partnership cards have an icon tile.
+    document.querySelectorAll(".purpose-card, .range-card, .partnership-grid article, .principles-grid article, .values > div, .registry-fact, .registry-contact-card").forEach((card) => {
+      if (card.querySelector(":scope > .site-card-icon")) return;
+      const heading = card.querySelector("h3, strong, h4");
+      const name = iconForLabel((heading && heading.textContent) || card.textContent);
+      if (!name) return;
+      const badge = document.createElement("span");
+      badge.className = "site-card-icon";
+      badge.appendChild(icon(name));
+      card.insertBefore(badge, card.firstChild);
+    });
+
+    // Add a small icon to important action links, while avoiding duplicate decoration.
+    document.querySelectorAll("a.btn, .nav-cta, .floating-wa, .plain").forEach((link) => {
+      if (link.querySelector("[data-lucide]")) return;
+      const text = link.textContent || "";
+      const name = link.classList.contains("floating-wa") ? "message-circle" :
+        (link.classList.contains("plain") ? "arrow-right" : "arrow-up-right");
+      if (!text.trim()) return;
+      addIcon(link, name, "site-action-icon", true);
+    });
+
+    // Icon-only mobile navigation affordance and accessible form helpers.
+    const menu = document.getElementById("menu");
+    if (menu && !menu.querySelector("[data-lucide]")) {
+      menu.textContent = "";
+      menu.appendChild(icon("menu"));
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+    }
+  };
+
+  const initialiseScrollMotion = () => {
+    const selectors = [
+      "main > section", ".hero-content", ".inner-hero-content",
+      ".purpose-card", ".range-card", ".partnership-grid article",
+      ".principles-grid article", ".values > div", ".owner-layout > *",
+      ".story-grid > *", ".two-col-photo > *", ".intro-image-row > *",
+      ".support-grid > *", ".partner-contact-inner > *",
+      ".cards > *", ".shop-toolbar", ".catalog-cta",
+      ".registry-highlight", ".registry-fact", ".registry-contact-card",
+      ".auth-brand", ".auth-card", ".account-panel", ".callback-card",
+      ".legal-content"
+    ];
+    const nodes = [...new Set(selectors.flatMap((selector) => Array.from(document.querySelectorAll(selector))))];
+    nodes.forEach((node) => node.classList.add("scroll-reveal"));
+    if (reducedMotion || !("IntersectionObserver" in window)) {
+      nodes.forEach((node) => node.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("is-visible");
+        else entry.target.classList.remove("is-visible");
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -5% 0px" });
+
+    nodes.forEach((node) => observer.observe(node));
+  };
+
+  const initialiseScrollUtilities = () => {
+    const progress = document.createElement("div");
+    progress.className = "site-scroll-progress";
+    progress.setAttribute("aria-hidden", "true");
+    document.body.appendChild(progress);
+
+    const topButton = document.createElement("button");
+    topButton.className = "site-back-to-top";
+    topButton.type = "button";
+    topButton.setAttribute("aria-label", "Back to top");
+    topButton.setAttribute("title", "Back to top");
+    topButton.appendChild(icon("arrow-up"));
+    document.body.appendChild(topButton);
+    topButton.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" }));
+
+    let ticking = false;
+    const update = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progressValue = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+      progress.style.width = progressValue + "%";
+      topButton.classList.toggle("is-visible", window.scrollY > 500);
+      ticking = false;
+    };
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+      window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+    }
+  };
+
+  const boot = () => {
+    initialiseIcons();
+    initialiseScrollMotion();
+    initialiseScrollUtilities();
+  };
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
+  else boot();
+})();
