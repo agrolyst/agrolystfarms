@@ -7,7 +7,9 @@ This folder contains the database migration and frontend modules for a Supabase-
 - `migrations/20261019173809_agrolyst_shop_foundation.sql` — schema, initial RLS rules and store settings.
 - `migrations/20261019174005_shop_fk_indexes_and_profile_trigger.sql` — foreign-key indexes and profile bootstrap trigger.
 - `migrations/20261019174846_agrolyst_checkout_order_rpc.sql` — transactional order creation with server-side price, inventory and delivery checks.
+- `migrations/20261019180640_agrolyst_payment_receipts.sql` — private receipt storage and public-configurable bank transfer settings.
 - `functions/create-order/index.ts` — source of the deployed `create-order` Edge Function.
+- `functions/upload-payment-receipt/index.ts` — source of the deployed private receipt-upload Edge Function.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
@@ -33,7 +35,7 @@ To go live with sales:
 - Anonymous users can read only active catalogue rows and active delivery zones.
 - Customer-facing roles have no direct permission to insert orders or set order/payment status. This is intentional: order creation and payment verification must be implemented in a trusted server-side Edge Function, which validates the database prices, inventory, minimum delivery order and delivery zone before writing an order.
 - Do not expose the Supabase service-role or secret key in website code.
-- Paystack, Flutterwave, pay-on-delivery and receipt upload are not active yet; they need merchant credentials, verified webhooks and storage policies. The current checkout supports order submission with bank transfer marked unpaid.
+- Bank transfer order submission and private receipt upload are active. Uploaded receipts remain pending manual verification. Paystack, Flutterwave and pay-on-delivery are not active yet; these require their credentials, server-side verification/webhooks and explicit enablement.
 - Bank details are not stored in source code; add those to a protected admin setting before displaying them during checkout.
 - No products or product prices are seeded in the migration.
 
