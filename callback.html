@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123d2b">
+<meta name="description" content="Complete your Agrolyst Farms sign-in securely.">
+<link rel="icon" type="image/jpeg" href="Agrolyst%20Logo.jpeg"><link rel="apple-touch-icon" href="Agrolyst%20Logo.jpeg">
+<title>Completing sign-in | Agrolyst Farms</title><link rel="stylesheet" href="styles.css">
+<style>
+body{min-height:100vh;background:#f7f6f0;display:grid;place-items:center;padding:24px}
+.callback-card{width:min(460px,100%);background:#fff;padding:clamp(26px,6vw,44px);border:1px solid #e2e8df;box-shadow:0 18px 55px #153d2410;text-align:center}
+.callback-logo{width:56px;height:56px;object-fit:contain;display:block;margin:0 auto 18px}
+.callback-card h1{font-size:clamp(1.8rem,5vw,2.5rem);color:#123d2b;margin:12px 0}
+.callback-card p{color:#66716a;font-size:.95rem}
+.spinner{width:28px;height:28px;border:3px solid #dce7dc;border-top-color:#17683b;border-radius:50%;margin:22px auto;animation:spin .8s linear infinite}
+#status{margin-top:16px;font-size:.9rem;overflow-wrap:anywhere}
+.action{display:inline-block;margin-top:12px;padding:12px 18px;background:#123d2b;color:#fff;text-decoration:none;font-weight:700}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner{animation:none}}
+</style>
+</head>
+<body><main class="callback-card">
+<img class="callback-logo" src="Agrolyst%20Logo.jpeg" alt="Agrolyst Farms logo">
+<div class="eyebrow" style="justify-content:center"><i></i> AGROLYST FARMS</div>
+<h1 id="heading">Completing sign-in</h1><div class="spinner" id="spinner" aria-hidden="true"></div>
+<p id="message">Please wait while we securely verify your account.</p>
+<div id="status" role="status" aria-live="polite"></div>
+<a class="action" id="continueLink" href="index.html" hidden>Continue to website</a>
+<p><a href="auth.html" style="color:#17683b">Return to sign in</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="callback.js"></script>
+</body></html>
