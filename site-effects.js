@@ -4,6 +4,7 @@
   "use strict";
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let observeRevealNode = null;
   const icon = (name, className = "") => {
     const node = document.createElement("i");
     node.setAttribute("data-lucide", name);
@@ -74,16 +75,20 @@
     });
 
     // Purpose, product range and partnership cards have an icon tile.
-    document.querySelectorAll(".purpose-card, .range-card, .partnership-grid article, .principles-grid article, .values > div, .registry-fact, .registry-contact-card").forEach((card) => {
-      if (card.querySelector(":scope > .site-card-icon")) return;
+    const addCardTile = (card, target = card) => {
+      if (!target || target.querySelector(":scope > .site-card-icon")) return;
       const heading = card.querySelector("h3, strong, h4");
       const name = iconForLabel((heading && heading.textContent) || card.textContent);
       if (!name) return;
       const badge = document.createElement("span");
       badge.className = "site-card-icon";
       badge.appendChild(icon(name));
-      card.insertBefore(badge, card.firstChild);
-    });
+      target.insertBefore(badge, target.firstChild);
+    };
+    document.querySelectorAll(".purpose-card, .partnership-grid article, .principles-grid article, .registry-fact, .registry-contact-card").forEach((card) => addCardTile(card));
+    // Preserve existing two-column product cards and the three-item value row.
+    document.querySelectorAll(".range-card").forEach((card) => addCardTile(card, card.querySelector(":scope > div") || card));
+    document.querySelectorAll(".values > div").forEach((card) => addCardTile(card, card.querySelector(":scope > span") || card));
 
     // Add a small icon to important action links, while avoiding duplicate decoration.
     document.querySelectorAll("a.btn, .nav-cta, .floating-wa, .plain").forEach((link) => {
@@ -133,7 +138,39 @@
       });
     }, { threshold: 0.08, rootMargin: "0px 0px -5% 0px" });
 
-    nodes.forEach((node) => observer.observe(node));
+    observeRevealNode = (node) => {\n      if (!node || !(node instanceof Element)) return;\n      node.classList.add("scroll-reveal");\n      observer.observe(node);\n    };\n    nodes.forEach((node) => observer.observe(node));
+  };
+
+  const decorateDynamicProductCards = () => {
+    const decorate = (root) => {
+      const candidates = [];
+      if (root instanceof Element && root.matches(".shop-product-card")) candidates.push(root);
+      if (root && root.querySelectorAll) candidates.push(...root.querySelectorAll(".shop-product-card"));
+      candidates.forEach((card) => {
+        const copy = card.querySelector(".card-copy");
+        if (copy && !copy.querySelector(":scope > .site-card-icon")) {
+          const heading = copy.querySelector("h3");
+          const name = iconForLabel((heading && heading.textContent) || copy.textContent) || "package";
+          const badge = document.createElement("span");
+          badge.className = "site-card-icon";
+          badge.appendChild(icon(name));
+          copy.insertBefore(badge, copy.firstChild);
+        }
+        if (observeRevealNode) observeRevealNode(card);
+      });
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+      }
+    };
+    document.querySelectorAll("#productGrid, #catalogGrid").forEach((grid) => {
+      decorate(grid);
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => mutation.addedNodes.forEach((node) => {
+          if (node instanceof Element) decorate(node);
+        }));
+      });
+      observer.observe(grid, { childList: true, subtree: true });
+    });
   };
 
   const initialiseScrollUtilities = () => {
