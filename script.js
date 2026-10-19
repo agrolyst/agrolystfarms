@@ -20,7 +20,12 @@ const nav = document.getElementById("nav");
 menu?.addEventListener("click", () => {
   const opened = nav.classList.toggle("open");
   menu.setAttribute("aria-expanded", String(opened));
-  menu.textContent = opened ? "×" : "☰";
+  if (window.lucide && typeof window.lucide.createIcons === "function") {
+    menu.innerHTML = '<i data-lucide="' + (opened ? "x" : "menu") + '" aria-hidden="true"></i>';
+    window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+  } else {
+    menu.textContent = opened ? "×" : "☰";
+  }
 });
 nav?.querySelectorAll("a").forEach(link => link.addEventListener("click", () => nav.classList.remove("open")));
 document.getElementById("year").textContent = new Date().getFullYear();
