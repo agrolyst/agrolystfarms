@@ -5,7 +5,7 @@ const WHATSAPP_NUMBER = "2349160008433";
 
 function whatsappUrl(message) {
   const number = String(WHATSAPP_NUMBER).replace(/\D/g, "");
-  if (!/^234\\d{10}$/.test(number)) {
+  if (!/^234\d{10}$/.test(number)) {
     alert("Please add Agrolyst Farms' real WhatsApp number in script.js before launch.");
     return null;
   }
