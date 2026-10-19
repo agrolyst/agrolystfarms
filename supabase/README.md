@@ -4,14 +4,15 @@ This folder contains the database migration and frontend modules for a Supabase-
 
 ## Files
 
-- `migrations/20261019180000_agrolyst_shop_foundation.sql` — schema, indexes, initial RLS rules and store settings.
+- `migrations/20261019173809_agrolyst_shop_foundation.sql` — schema, initial RLS rules and store settings.
+- `migrations/20261019174005_shop_fk_indexes_and_profile_trigger.sql` — foreign-key indexes and profile bootstrap trigger.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
 
 ## Apply the migration
 
-The migration is intended for the existing Agrolyst Supabase project (ref: `rcrgooivgssuerrgnuqw`). Review it, then apply it through the Supabase Dashboard SQL Editor or the Supabase CLI. Back up any important data before applying changes to production.
+These migrations have been applied to the existing Agrolyst Supabase project (ref: `rcrgooivgssuerrgnuqw`) and the created tables were verified. For a fresh environment, apply migrations in timestamp order. Back up important data before applying schema changes to another production project.
 
 After applying:
 1. Confirm the tables exist under Database > Tables.
