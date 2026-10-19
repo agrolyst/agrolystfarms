@@ -9,6 +9,9 @@ if (productGrid) {
   const naira = (value) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 }).format(Number(value) || 0);
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
   const safeImage = (url) => {
+    if (typeof url !== "string" || url.length > 2000000) return "";
+    // Products sometimes have a base64 image URL saved directly in Supabase; allow only image MIME types.
+    if (/^data:image\/(?:jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=\r\n]+$/i.test(url)) return url.replace(/[\r\n]/g, "");
     try { const parsed = new URL(url, location.origin); return parsed.protocol === "https:" ? parsed.href : ""; }
     catch { return ""; }
   };
