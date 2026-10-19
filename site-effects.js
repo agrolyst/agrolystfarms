@@ -42,7 +42,7 @@
     if (/address|location|office/.test(value)) return "map-pin";
     if (/email/.test(value)) return "mail";
     if (/phone|call/.test(value)) return "phone";
-    if (/registry|cac|registered|incorporat/.test(value)) return "file-badge";
+    if (/business profile|company profile|business|registry|cac|registered|incorporat/.test(value)) return "building-2";
     if (/arrow|explore|browse|learn more|read more|view all/.test(value)) return "arrow-up-right";
     return null;
   };
@@ -78,7 +78,7 @@
     const addCardTile = (card, target = card) => {
       if (!target || target.querySelector(":scope > .site-card-icon")) return;
       const heading = card.querySelector("h3, strong, h4");
-      const name = iconForLabel((heading && heading.textContent) || card.textContent);
+      const name = iconForLabel(((heading && heading.textContent) || "") + " " + card.textContent);
       if (!name) return;
       const badge = document.createElement("span");
       badge.className = "site-card-icon";
