@@ -138,7 +138,12 @@
       });
     }, { threshold: 0.08, rootMargin: "0px 0px -5% 0px" });
 
-    observeRevealNode = (node) => {\n      if (!node || !(node instanceof Element)) return;\n      node.classList.add("scroll-reveal");\n      observer.observe(node);\n    };\n    nodes.forEach((node) => observer.observe(node));
+    observeRevealNode = (node) => {
+      if (!node || !(node instanceof Element)) return;
+      node.classList.add("scroll-reveal");
+      observer.observe(node);
+    };
+    nodes.forEach((node) => observer.observe(node));
   };
 
   const decorateDynamicProductCards = () => {
