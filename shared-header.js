@@ -72,7 +72,6 @@
     });
 
     const path = location.pathname.replace(/\/+$/, "") || "/";
-    const routeMap = { products: "/products", partnerships: "/partnerships", account: "/account", contact: "/#contact", approach: "/#approach" };
     header.querySelectorAll("[data-nav-route]").forEach(link => {
       const route = link.dataset.navRoute;
       const target = routeMap[route];
@@ -84,7 +83,7 @@
       }
     });
 
-    const aboutActive = path === "/about" || path === "/about";
+    const aboutActive = path === "/about";
     if (aboutActive) {
       aboutToggle.classList.add("is-current");
       aboutToggle.setAttribute("aria-current", "page");
