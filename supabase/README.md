@@ -10,8 +10,10 @@ This folder contains the database migration and frontend modules for a Supabase-
 - `migrations/20261019180640_agrolyst_payment_receipts.sql` — private receipt storage and public-configurable bank transfer settings.
 - `migrations/20261019181412_restrict_profile_trigger_function_execution.sql` — removes client RPC access to the internal auth profile trigger.
 - `migrations/20261019183732_agrolyst_owner_profile_setting.sql` and `migrations/20261019184026_agrolyst_owner_profile_setting.sql` — the public, optional owner profile setting and read policy.
+- `migrations/20261020110000_agrolyst_onboarding_webpush.sql` — customer onboarding profile fields, RLS-protected browser push subscriptions, customer notification history, and order-created/order-status notification triggers.
 - `functions/create-order/index.ts` — source of the deployed `create-order` Edge Function.
 - `functions/upload-payment-receipt/index.ts` — source of the deployed private receipt-upload Edge Function.
+- `functions/push-notification/index.ts` — deployed web push sender for new notification rows; requires VAPID secrets and a Database Webhook configured in the dashboard.
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
@@ -65,3 +67,7 @@ Use the owner's approved portrait hosted at a stable HTTPS URL. No real owner na
 - No products or product prices are seeded in the migration.
 
 The default delivery-zone minimum is ₦10,000, but actual delivery zones and fees must be configured in `delivery_zones`. Customers may use farm pickup while delivery coverage is being configured.
+
+## Customer onboarding and background push notifications
+
+See [the onboarding and push setup guide](ONBOARDING-PUSH.md) for the three-step onboarding flow and the one-time configuration required for web push. The migration is applied to the existing Agrolyst Supabase project. The push sender is deployed, but background delivery is not active until VAPID secrets and the `public.notifications` INSERT webhook are configured in Supabase Dashboard. Never commit private VAPID keys or webhook secrets.
