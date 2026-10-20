@@ -7,6 +7,8 @@ Official Agrolyst Farms website and Supabase-powered product catalogue.
 - `/about/` — company profile, mission, vision, philosophy and owner/leadership section.
 - `/products/` — product ranges plus catalogue fetched from Supabase.
 - `/partnerships/` — manufacturer, supplier, farmer, distributor, investor and institutional partnership opportunities.
+- `/owners/` — public business profile and ownership/leadership information, with notes distinguishing verified business records from unconfirmed ownership.
+- `/ambassadors/` — ambassador initiative overview, possible participation areas and contact information.
 - `/website-technology/` — SEO-friendly developer credit and selected portfolio for Rokib Yusuf (Don Martial), who built the Agrolyst Farms website.
 - `/technical-support/` — separate technical support and developer contact page.
 - `/privacy/` and `/agreement/` — privacy and terms pages.
