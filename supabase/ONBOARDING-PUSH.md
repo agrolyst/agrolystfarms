@@ -2,7 +2,7 @@
 
 ## What is included
 
-- onboarding.html and onboarding.js: authenticated three-step customer profile form; it writes to the signed-in customer's own profiles row.
+- the clean `/onboarding/` route (source file `onboarding/index.html`) and `onboarding.js`: authenticated three-step customer profile form; it writes to the signed-in customer's own profiles row.
 - auth-experience.css and auth-showcase.js: split-screen login/signup/onboarding presentation with an automatic slideshow that has no manual image controls.
 - service-worker.js: persistent browser push event and notification-click handlers.
 - supabase/migrations/20261020110000_agrolyst_onboarding_webpush.sql: profile fields, RLS-protected subscriptions and notification history; database triggers enqueue notifications when an order is created or its status changes.
@@ -37,7 +37,7 @@ The function uses verify_jwt=false because Database Webhooks use their own HTTP 
 ### 3. Test delivery
 
 1. Deploy the latest website to HTTPS.
-2. Sign in or create an account and complete onboarding.
+2. Sign in or create an account and complete onboarding at `/onboarding/`.
 3. Tick the optional order/service notification consent and allow notifications in the browser prompt.
 4. In Supabase, create a test public.notifications row for that same user_id and confirm its push_status changes to sent. Use a harmless test title/body and url='/account.html'.
 5. Confirm a browser/OS notification appears with the website closed or in the background.
