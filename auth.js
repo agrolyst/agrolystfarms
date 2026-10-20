@@ -6,17 +6,17 @@ const form = document.getElementById("authForm");
 const statusEl = document.getElementById("status");
 async function routeSignedInUser(user) {
   if (!user || !user.id) {
-    location.replace("onboarding.html");
+    location.replace("/onboarding/");
     return;
   }
   try {
     const { data: profile, error } = await client.from("profiles")
       .select("onboarding_completed").eq("id", user.id).maybeSingle();
     if (error) throw error;
-    location.replace(profile && profile.onboarding_completed ? "index.html" : "onboarding.html");
+    location.replace(profile && profile.onboarding_completed ? "/" : "/onboarding/");
   } catch (error) {
     console.warn("Unable to read onboarding state; sending customer to profile setup.", error);
-    location.replace("onboarding.html");
+    location.replace("/onboarding/");
   }
 }
 // Existing authenticated visitors go to profile setup only if it is incomplete.
