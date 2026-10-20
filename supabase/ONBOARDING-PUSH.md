@@ -39,7 +39,7 @@ The function uses verify_jwt=false because Database Webhooks use their own HTTP 
 1. Deploy the latest website to HTTPS.
 2. Sign in or create an account and complete onboarding at `/onboarding/`.
 3. Tick the optional order/service notification consent and allow notifications in the browser prompt.
-4. In Supabase, create a test public.notifications row for that same user_id and confirm its push_status changes to sent. Use a harmless test title/body and url='/account.html'.
+4. In Supabase, create a test public.notifications row for that same user_id and confirm its push_status changes to sent. Use a harmless test title/body and url='/account/'.
 5. Confirm a browser/OS notification appears with the website closed or in the background.
 
 Order-created and order-status database triggers create notification rows only for orders linked to a signed-in user. Guest orders cannot be sent to a customer account that does not exist. A status update sends only if the application inserts the corresponding order_status_events row.
