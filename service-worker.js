@@ -1,6 +1,6 @@
 
 const CACHE_NAME = "agrolyst-shell-v1";
-const APP_SHELL = ["/", "/index.html", "/favicon.jpeg", "/manifest.webmanifest"];
+const APP_SHELL = ["/", "/about/", "/products/", "/favicon.jpeg", "/manifest.webmanifest"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).catch(() => undefined));
@@ -23,13 +23,13 @@ self.addEventListener("push", event => {
     badge: "/favicon.jpeg",
     tag: typeof payload.tag === "string" ? payload.tag : "agrolyst-update",
     renotify: false,
-    data: { url: typeof payload.url === "string" ? payload.url : "/account.html", ...(payload.data && typeof payload.data === "object" ? payload.data : {}) }
+    data: { url: typeof payload.url === "string" ? payload.url : "/account/", ...(payload.data && typeof payload.data === "object" ? payload.data : {}) }
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 self.addEventListener("notificationclick", event => {
   event.notification.close();
-  const url = new URL(event.notification.data && event.notification.data.url ? event.notification.data.url : "/account.html", self.location.origin).href;
+  const url = new URL(event.notification.data && event.notification.data.url ? event.notification.data.url : "/account/", self.location.origin).href;
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
       const existing = list.find(client => client.url.startsWith(self.location.origin) && "focus" in client);
