@@ -1,7 +1,7 @@
 {
   "name": "Agrolyst Integrated Farms and Services",
   "short_name": "Agrolyst Farms",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f6f0",
