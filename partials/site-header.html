@@ -10,27 +10,62 @@
     </button>
 
     <nav class="ag-shared-nav" id="agSharedNav" aria-label="Main navigation">
-      <a class="ag-shared-nav__link" data-nav-route="home" href="/">Home</a>
-
       <div class="ag-shared-dropdown">
-        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" id="agAboutToggle" type="button" aria-expanded="false" aria-controls="agAboutMenu">
-          About Us <span class="ag-shared-chevron" aria-hidden="true"></span>
-        </button>
-        <div class="ag-shared-dropdown__menu" id="agAboutMenu" aria-labelledby="agAboutToggle">
+        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" type="button" aria-expanded="false" aria-controls="agAboutMenu">About Us <span class="ag-shared-chevron" aria-hidden="true"></span></button>
+        <div class="ag-shared-dropdown__menu" id="agAboutMenu">
           <a href="/about/">About us</a>
-          <a href="/about/#team">Team</a>
-          <a href="/about/#board">Board</a>
-          <a href="/partnerships/">Partners</a>
-          <a href="/#partners">Ambassadors</a>
-          <a href="/#contact">Careers</a>
+          <a href="/team/">Team</a>
+          <a href="/board/">Board</a>
+          <a href="/partners/">Partners</a>
+          <a href="/ambassadors/">Ambassadors</a>
+          <a href="/careers/">Careers</a>
         </div>
       </div>
 
-      <a class="ag-shared-nav__link" data-nav-route="products" href="/products/">Products &amp; Services</a>
-      <a class="ag-shared-nav__link" data-nav-route="approach" href="/#approach">Our Approach</a>
-      <a class="ag-shared-nav__link" data-nav-route="partnerships" href="/partnerships/">Partnerships</a>
-      <a class="ag-shared-nav__link" data-nav-route="contact" href="/#contact">Contact Us</a>
+      <div class="ag-shared-dropdown">
+        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" type="button" aria-expanded="false" aria-controls="agProductsMenu">Products <span class="ag-shared-chevron" aria-hidden="true"></span></button>
+        <div class="ag-shared-dropdown__menu" id="agProductsMenu">
+          <a href="/products/">All products</a>
+          <a href="/agribusiness-accelerator/">Agribusiness Accelerator</a>
+          <a href="/agribusiness-brand-strategy-masterclass/">Agribusiness Brand Strategy Masterclass</a>
+        </div>
+      </div>
+
+      <div class="ag-shared-dropdown">
+        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" type="button" aria-expanded="false" aria-controls="agCommunityMenu">Community <span class="ag-shared-chevron" aria-hidden="true"></span></button>
+        <div class="ag-shared-dropdown__menu" id="agCommunityMenu">
+          <a href="/our-communities/">Our communities</a>
+          <a href="/marketplace/">Marketplace</a>
+          <a href="/add-testimonial/">Add Testimonial</a>
+        </div>
+      </div>
+
+      <div class="ag-shared-dropdown">
+        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" type="button" aria-expanded="false" aria-controls="agOpportunitiesMenu">Opportunities <span class="ag-shared-chevron" aria-hidden="true"></span></button>
+        <div class="ag-shared-dropdown__menu" id="agOpportunitiesMenu">
+          <a href="/associate-directory/">Associate Directory</a>
+          <a href="/data/">Data</a>
+          <a href="/events/">Events</a>
+          <a href="/training-workshop/">Training and workshop</a>
+          <a href="/financial-support/">Financial support</a>
+          <a href="/capacity-building/">Capacity building</a>
+        </div>
+      </div>
+
+      <div class="ag-shared-dropdown">
+        <button class="ag-shared-nav__link ag-shared-dropdown__toggle" type="button" aria-expanded="false" aria-controls="agNarrativeMenu">Narrative Changers <span class="ag-shared-chevron" aria-hidden="true"></span></button>
+        <div class="ag-shared-dropdown__menu" id="agNarrativeMenu">
+          <a href="/podcast/">Podcast</a>
+          <a href="/food-culture/">Food culture</a>
+          <a href="/agribusiness-clinic/">Agribusiness Clinic</a>
+          <a href="/agrifood-webinar-series/">Agrifood Webinar Series</a>
+          <a href="/news-updates/">News and updates</a>
+        </div>
+      </div>
+
+      <a class="ag-shared-nav__link" data-nav-route="contact" href="/#contact">Contact</a>
       <a class="ag-shared-nav__link ag-shared-account-link" id="accountNav" data-nav-route="account" href="/login/">Sign in</a>
+      <label class="ag-shared-language"><span aria-hidden="true">文</span><select id="agTranslateSelect" aria-label="Translate this page with Google"><option value="">Translate</option><option value="en">English</option><option value="ha">Hausa</option><option value="yo">Yoruba</option><option value="ig">Igbo</option><option value="fr">French</option><option value="ar">Arabic</option><option value="es">Spanish</option><option value="pt">Portuguese</option><option value="sw">Swahili</option><option value="hi">Hindi</option><option value="zh-CN">Chinese</option></select></label>
     </nav>
   </div>
 </header>
