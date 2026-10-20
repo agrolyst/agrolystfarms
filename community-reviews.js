@@ -86,7 +86,7 @@
         const postComments=comments.filter(c=>c.review_id===post.id && !c.is_hidden);
         const roots=postComments.filter(c=>!c.parent_id);
         const postLikes=likes.filter(l=>l.review_id===post.id);
-        const ownLike=postLikes.some(l=>l.visitor_id===visitorId);
+        const ownLike=likedSet.has(post.id);
         const avatar=esc((post.author_name||'?').trim().charAt(0).toUpperCase());
         return '<article class="agr-post" data-post="'+post.id+'"><div class="agr-post-head"><div class="agr-avatar">'+avatar+'</div><div class="agr-post-by"><strong>'+esc(post.author_name)+'</strong><span>'+esc([post.business_name,post.location].filter(Boolean).join(' · ')||'Agrolyst community member')+'</span></div><time>'+esc(shortDate(post.created_at))+'</time></div>'+
         '<div class="agr-post-category">'+esc(post.category||'Community')+'</div><p class="agr-post-copy">'+esc(post.body).replace(/\n/g,'<br>')+'</p>'+
@@ -108,9 +108,11 @@
         posts=postRes.data||[]; comments=commentRes.data||[];
         const ids=posts.map(p=>p.id);
         if(ids.length){
-          const likeRes=await client.from('agrolyst_review_likes').select('review_id,visitor_id').in('review_id',ids);
+          const [likeRes, ownLikeRes]=await Promise.all([client.from('agrolyst_review_likes').select('review_id').in('review_id',ids),client.from('agrolyst_review_likes').select('review_id').eq('visitor_id',visitorId).in('review_id',ids)]);
           if(likeRes.error) throw likeRes.error;
+          if(ownLikeRes.error) throw ownLikeRes.error;
           likes=likeRes.data||[];
+          likedSet.clear();(ownLikeRes.data||[]).forEach(row=>likedSet.add(row.review_id));
         } else likes=[];
         render();
       } catch(err) {
