@@ -14,8 +14,8 @@ function showError(text) {
   status.style.color = "#9b3c23";
   spinner.hidden = true;
   continueLink.hidden = false;
-  continueLink.href = "auth.html";
-  continueLink.textContent = "Back to sign in";
+  continueLink.href = "login.html";
+  continueLink.textContent = "Back to login";
 }
 (async function completeAuth() {
   try {
@@ -44,15 +44,24 @@ function showError(text) {
     }
     // Keep the URL clean so one-time auth codes are not left in the address bar.
     history.replaceState({}, document.title, location.pathname);
+    const user = data.session.user;
+    let destination = "onboarding.html";
+    try {
+      const { data: profile, error: profileError } = await client.from("profiles")
+        .select("onboarding_completed").eq("id", user.id).maybeSingle();
+      if (!profileError && profile && profile.onboarding_completed) destination = "index.html";
+    } catch (profileError) {
+      console.warn("Could not check onboarding completion; opening profile setup.", profileError);
+    }
     heading.textContent = "You're signed in";
     message.textContent = "Your Agrolyst Farms account has been verified successfully.";
-    status.textContent = "Taking you to the website…";
+    status.textContent = destination === "onboarding.html" ? "Let's complete your customer profile…" : "Taking you to the website…";
     status.style.color = "#176d37";
     spinner.hidden = true;
     continueLink.hidden = false;
-    continueLink.href = "index.html";
-    continueLink.textContent = "Continue to Agrolyst Farms";
-    window.setTimeout(() => { location.replace("index.html"); }, 1200);
+    continueLink.href = destination;
+    continueLink.textContent = destination === "onboarding.html" ? "Complete your profile" : "Continue to Agrolyst Farms";
+    window.setTimeout(() => { location.replace(destination); }, 1200);
   } catch (error) {
     showError(error && error.message ? error.message : "Authentication failed. Please try again.");
   }
