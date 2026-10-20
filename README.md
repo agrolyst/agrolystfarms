@@ -27,3 +27,5 @@ Google decides what it displays in Search after it crawls the live deployment. D
 - The profile setup page stores private customer details in the RLS-protected `profiles` table.
 - Web push subscriptions are saved to `push_subscriptions`, and order notifications are recorded in `notifications`.
 - For background push delivery, follow `supabase/ONBOARDING-PUSH.md` to add the VAPID and webhook secrets and configure a webhook in the Supabase Dashboard. Do not commit the private push-key file or any Edge Function secret.
+
+The customer profile setup uses the clean path `https://agrolystfarms.com/onboarding/`; `onboarding.html` is only a legacy redirect.
