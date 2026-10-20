@@ -20,8 +20,9 @@
 <meta name="twitter:title" content="My Account | Agrolyst Integrated Farms and Services">
 <meta name="twitter:description" content="Access your Agrolyst Integrated Farms and Services customer account.">
 <meta name="twitter:image" content="https://agrolystfarms.com/favicon.jpeg">
+<link rel="stylesheet" href="/shared-header.css">
 </head>
-<body><header><div class="container nav"><a class="brand" href="/"><img class="brand-logo" src="/Agrolyst%20Logo.jpeg" alt="Agrolyst Farms logo"><span><b>AGROLYST</b><small>INTEGRATED FARMS AND SERVICES</small></span></a><nav><a href="/">Home</a><a href="/#products">Products & Services</a><a href="/#contact">Contact</a></nav></div></header>
+<body><div data-shared-header-mount></div>
 <main class="container"><section class="account-panel"><div class="eyebrow"><i></i>AGROLYST FARMS ACCOUNT</div><h1>Welcome, <span id="accountName">customer</span>.</h1><p>You are signed in. From here you can return to the website or securely sign out of your account.</p><p id="accountEmail"></p><div class="account-actions"><a class="btn green" href="/">Continue shopping</a><button id="signOut" class="btn wa" type="button">Sign out</button></div><p class="account-status" id="accountStatus" role="status" aria-live="polite"></p></section>
 <section class="account-notifications" aria-labelledby="notificationSettingsHeading">
   <div class="eyebrow"><i></i>NOTIFICATION PREFERENCES</div>
@@ -87,4 +88,5 @@ disableNotifications.addEventListener("click",async()=>{
 document.getElementById("signOut").addEventListener("click",async()=>{const b=document.getElementById("signOut"),s=document.getElementById("accountStatus");b.disabled=true;s.textContent="Signing out…";const {error}=await client.auth.signOut();if(error){s.textContent=error.message;b.disabled=false;return;}location.replace("/");});
 </script><script src="https://unpkg.com/lucide@latest" defer></script>
 <script src="/site-effects.js" defer></script>
+<script src="/shared-header.js" defer></script>
 </body></html>
