@@ -47,7 +47,7 @@ form.addEventListener("submit", async e => {
   try {
     if (mode === "signup") {
       const fullName = document.getElementById("fullName").value.trim();
-      const { data, error } = await client.auth.signUp({email, password, options:{data:{full_name:fullName}, emailRedirectTo:location.origin + "/callback/"}});
+      const { data, error } = await client.auth.signUp({email, password, options:{data:{full_name:fullName}, emailRedirectTo:"https://agrolystfarms.com/callback/"}});
       if (error) throw error;
       if (data.session && data.user) {
         setStatus("Account created. Let's finish your profile…", false);
@@ -65,13 +65,13 @@ form.addEventListener("submit", async e => {
 });
 document.getElementById("googleBtn").addEventListener("click", async () => {
   setStatus("Connecting to Google…", false);
-  const { error } = await client.auth.signInWithOAuth({provider:"google", options:{redirectTo:location.origin + "/callback/", queryParams:{prompt:"select_account"}}});
+  const { error } = await client.auth.signInWithOAuth({provider:"google", options:{redirectTo:"https://agrolystfarms.com/callback/", queryParams:{prompt:"select_account"}}});
   if (error) setStatus(error.message || "Google sign-in failed.");
 });
 document.getElementById("resetLink").addEventListener("click", async e => {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
   if (!email) { setStatus("Enter your email address first, then choose Forgot password."); return; }
-  const { error } = await client.auth.resetPasswordForEmail(email, {redirectTo:location.origin + "/callback/"});
+  const { error } = await client.auth.resetPasswordForEmail(email, {redirectTo:"https://agrolystfarms.com/callback/"});
   setStatus(error ? error.message : "If that email is registered, a password reset link will arrive shortly.", Boolean(error));
 });
