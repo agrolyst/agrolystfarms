@@ -1,0 +1,10 @@
+.ag-shared-language{min-width:0}
+.ag-shared-language select,[data-ag-translate] select{font:500 .77rem "DM Sans",sans-serif}
+.ag-translate-float{position:fixed;z-index:900;right:18px;bottom:88px;display:inline-flex;align-items:center;gap:7px;padding:7px 9px;background:#fff;border:1px solid #d9e2d6;border-radius:7px;box-shadow:0 8px 28px #102d171c;color:#176d2b}
+.ag-translate-float>span{font-size:1.05rem;font-weight:700;line-height:1}
+.ag-translate-float select{max-width:150px;border:0;outline:0;background:transparent;color:#176d2b;padding:3px;font:600 .78rem "DM Sans",sans-serif;cursor:pointer}
+.ag-translate-float select:focus-visible{outline:2px solid #2b8b44;outline-offset:2px}
+.ag-translate-float--standalone{top:16px;right:16px;bottom:auto}
+.ag-shared-language select{max-width:115px}
+@media(max-width:900px){.ag-translate-float:not(.ag-translate-float--standalone){position:static;box-shadow:none;background:#f7faf5;margin:7px 0 0;width:max-content}.ag-translate-float select{max-width:220px}.ag-translate-float--standalone{position:fixed;top:10px;right:10px}}
+@media(prefers-reduced-motion:reduce){.ag-translate-float *{transition:none!important}}
