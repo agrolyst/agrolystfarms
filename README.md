@@ -29,11 +29,31 @@ Google decides what it displays in Search after it crawls the live deployment. D
 - For background push delivery, follow `supabase/ONBOARDING-PUSH.md` to add the VAPID and webhook secrets and configure a webhook in the Supabase Dashboard. Do not commit the private push-key file or any Edge Function secret.
 
 The customer profile setup is served at `https://agrolystfarms.com/onboarding/` from `onboarding/index.html`. The old `/onboarding.html` URL redirects to the clean route.
+## Shared header and navigation
 
-## Shared site header
+The desktop dropdown and mobile navigation are stored in one shared partial so menu changes do not need to be copied between pages.
 
-- The shared header markup lives in `partials/site-header.html`.
-- Header styling lives in `shared-header.css`; dropdown behavior, mobile navigation, and the signed-in account link live in `shared-header.js`.
-- Current pages using it: `/`, `/about/`, `/products/`, `/partnerships/`, `/account/`, `/privacy/`, and `/agreement/`.
-- To add it to a new page, put `<div data-shared-header-mount></div>` where the header belongs, add `<link rel="stylesheet" href="/shared-header.css">` in the head, and add `<script src="/shared-header.js" defer></script>` before the closing body tag. Edit the partial/style/script above to change the shared header once for all pages.
-- Authentication and onboarding pages keep their dedicated branded layout rather than the main site navigation.
+- `partials/site-header.html` — the shared header and all dropdown menu links.
+- `shared-header.css` — the header layout, dropdown appearance and responsive menu styles.
+- `shared-header.js` — loads the partial, handles dropdowns and mobile navigation, and updates the account link.
+- `site-translate.js` and `site-translate.css` — language selection using Google Translate's website-translation route.
+
+Pages using the shared header include the homepage, About Us, Products, Partnerships, Account, Privacy, Terms, and each individual page in the dropdown menus.
+
+To add the header to another page, include `<div data-shared-header-mount></div>` where the header should appear, add `<link rel="stylesheet" href="/shared-header.css">` in the document head, and load `<script src="/shared-header.js" defer></script>` before `</body>`. Also include `site-translate.css` and `site-translate.js` if the new page should have the same language selector.
+
+### Separate navigation pages
+
+About Us: `/about/`, `/team/`, `/board/`, `/partners/`, `/ambassadors/`, `/careers/`.
+
+Products: `/products/`, `/agribusiness-accelerator/`, `/agribusiness-brand-strategy-masterclass/`.
+
+Community: `/our-communities/`, `/marketplace/`, `/add-testimonial/`.
+
+Opportunities: `/associate-directory/`, `/data/`, `/events/`, `/training-workshop/`, `/financial-support/`, `/capacity-building/`.
+
+Narrative Changers: `/podcast/`, `/food-culture/`, `/agribusiness-clinic/`, `/agrifood-webinar-series/`, `/news-updates/`.
+
+### Translation
+
+The language selector opens the selected page through Google Translate's website translation proxy, allowing translated pages to keep navigating to other translated URLs. This is distinct from the legacy embedded Website Translator widget, which Google says is no longer supported from October 1, 2026. For on-site API-based translation rather than Google's translated-site view, configure Google Cloud Translation and its API credentials separately.
