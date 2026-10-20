@@ -4,12 +4,12 @@ Official Agrolyst Farms website and Supabase-powered product catalogue.
 
 ## Public website pages
 - `index.html` — homepage, live Supabase catalogue, cart and checkout.
-- `about.html` — company profile, mission, vision, philosophy and owner/leadership section.
-- `products.html` — product ranges plus catalogue fetched from Supabase.
-- `partnerships.html` — manufacturer, supplier, farmer, distributor, investor and institutional partnership opportunities.
-- `privacy.html` and `agreement.html` — privacy and terms pages.
-- `login.html` and `signup.html` — dedicated customer authentication pages with page-specific SEO metadata.
-- `auth.html`, `callback.html`, `account.html` — legacy authentication and customer account flow (kept out of the public sitemap where appropriate).
+- `/about/` — company profile, mission, vision, philosophy and owner/leadership section.
+- `/products/` — product ranges plus catalogue fetched from Supabase.
+- `/partnerships/` — manufacturer, supplier, farmer, distributor, investor and institutional partnership opportunities.
+- `/privacy/` and `/agreement/` — privacy and terms pages.
+- `/login/` and `/signup/` — dedicated customer authentication pages with page-specific SEO metadata.
+- `auth.html`, `/callback/`, `/account/` — legacy authentication and customer account flow (kept out of the public sitemap where appropriate).
 
 ## SEO and brand
 - Page-specific titles, descriptions, canonical URLs, indexable public login/signup pages, XML sitemap and Google verification meta tag.
@@ -28,4 +28,4 @@ Google decides what it displays in Search after it crawls the live deployment. D
 - Web push subscriptions are saved to `push_subscriptions`, and order notifications are recorded in `notifications`.
 - For background push delivery, follow `supabase/ONBOARDING-PUSH.md` to add the VAPID and webhook secrets and configure a webhook in the Supabase Dashboard. Do not commit the private push-key file or any Edge Function secret.
 
-The customer profile setup uses the clean path `https://agrolystfarms.com/onboarding/`; `onboarding.html` is only a legacy redirect.
+The customer profile setup uses the clean path `https://agrolystfarms.com/onboarding/`; `/onboarding/` is only a legacy redirect.
