@@ -14,7 +14,7 @@ function showError(text) {
   status.style.color = "#9b3c23";
   spinner.hidden = true;
   continueLink.hidden = false;
-  continueLink.href = "login.html";
+  continueLink.href = "/login/";
   continueLink.textContent = "Back to login";
 }
 (async function completeAuth() {
