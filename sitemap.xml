@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://agrolystfarms.com/</loc><lastmod>2026-10-20</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://agrolystfarms.com/about.html</loc><lastmod>2026-10-20</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://agrolystfarms.com/products.html</loc><lastmod>2026-10-20</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://agrolystfarms.com/partnerships.html</loc><lastmod>2026-10-20</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://agrolystfarms.com/login.html</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://agrolystfarms.com/signup.html</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://agrolystfarms.com/privacy.html</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
-  <url><loc>https://agrolystfarms.com/agreement.html</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://agrolystfarms.com/about/</loc><lastmod>2026-10-20</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agrolystfarms.com/products/</loc><lastmod>2026-10-20</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://agrolystfarms.com/partnerships/</loc><lastmod>2026-10-20</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://agrolystfarms.com/privacy/</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+  <url><loc>https://agrolystfarms.com/agreement/</loc><lastmod>2026-10-20</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
 </urlset>
