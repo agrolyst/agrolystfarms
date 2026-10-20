@@ -13,8 +13,9 @@ Official Agrolyst Farms website and Supabase-powered product catalogue.
 ## SEO and brand
 - Page-specific titles, descriptions, canonical URLs and Google verification meta tag.
 - Homepage `WebSite` and `OnlineStore` structured data with the official Agrolyst logo.
+- Stable root-level `/favicon.jpeg` is an exact copy of the official square 1080 × 1080 logo and is used for browser/search favicon, social previews and organization logo metadata.
 - Open Graph/social preview metadata, `sitemap.xml` and `robots.txt`.
-- Keep `Agrolyst Logo.jpeg` as the official logo, favicon and social/structured-data image.
+- Keep `Agrolyst Logo.jpeg` as the original source asset; `/favicon.jpeg` is a no-space URL alias with identical image bytes for crawlers.
 
 ## Supabase
 All catalogue product names, images, prices, stock, and wholesale pricing are loaded from Supabase rather than hardcoded in product-card HTML. Read [the Supabase shop guide](supabase/README.md) for schema, checkout, receipt upload, delivery-zone and owner-profile setup.
