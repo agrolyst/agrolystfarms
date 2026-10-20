@@ -61,6 +61,7 @@
 
     // Navigation links receive consistent, light-weight outline icons.
     document.querySelectorAll("header nav a, .legal-top a").forEach((link) => {
+      if (link.closest(".ag-shared-header")) return;
       if (link.querySelector("[data-lucide]")) return;
       const href = (link.getAttribute("href") || "").toLowerCase();
       const text = link.textContent || "";
