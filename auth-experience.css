@@ -4,8 +4,8 @@
 .auth-brand{position:relative;isolation:isolate;overflow:hidden;min-height:100svh;padding:clamp(30px,4.8vw,76px);display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#063b23,#17643c 70%,#0d4a2d);color:#fff}
 .auth-slides,.auth-brand-shade{position:absolute;inset:0;pointer-events:none}
 .auth-slides{z-index:-2;background:#0c3d26}
-.auth-slide{position:absolute;inset:0;background-position:center;background-size:cover;opacity:0;transform:scale(1.045);transition:opacity 1.35s ease,transform 7s ease}
-.auth-slide.is-active{opacity:1;transform:scale(1)}
+.auth-slide{position:absolute;inset:0;background-position:center;background-size:cover;opacity:0;transform:translateX(3%) scale(1.03);transition:opacity 1.2s ease,transform 6.4s cubic-bezier(.2,.65,.25,1)}
+.auth-slide.is-active{opacity:1;transform:translateX(0) scale(1.03)}
 .auth-brand-shade{z-index:-1;background:linear-gradient(145deg,#062f20ed 0%,#0a412cc9 46%,#082c20ad 100%),linear-gradient(0deg,#052b1ccf,transparent 65%)}
 .auth-brand-content{position:relative;display:flex;flex-direction:column;min-height:calc(100svh - 155px);justify-content:space-between;gap:34px}
 .auth-brand-mark{display:inline-flex;align-items:center;gap:13px;align-self:flex-start;color:white;text-decoration:none}
