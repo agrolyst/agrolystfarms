@@ -17,7 +17,7 @@ This folder contains the database migration and frontend modules for a Supabase-
 - `supabase-config.js` — project URL and browser-safe publishable key only.
 - `supabase-client.js` — shared Supabase browser client.
 - `catalog-api.js` — fetches categories/products/pricing/inventory from Supabase; no products are hardcoded.
-- `../catalog-page.js` — renders the Supabase catalogue on `products.html`.
+- `../catalog-page.js` — renders the Supabase catalogue on `/products/`.
 - `../owner-profile.js` — optionally fetches the owner name, biography and approved portrait from the `owner_profile` setting.
 
 ## Apply the migration
