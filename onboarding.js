@@ -69,11 +69,11 @@ function urlBase64ToUint8Array(base64String) {
   for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
   return output;
 }
-async function enablePushNotifications() {
+async function enablePushNotifications(permissionPromise) {
   if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
     throw new Error("This browser does not support background web push notifications. Your profile will still be saved.");
   }
-  const permission = await Notification.requestPermission();
+  const permission = permissionPromise ? await permissionPromise : await Notification.requestPermission();
   if (permission !== "granted") {
     throw new Error("Notifications were not enabled in your browser. Your profile is saved; you can allow alerts later in browser settings.");
   }
@@ -144,6 +144,14 @@ form.addEventListener("submit", async (event) => {
   finish.disabled = true;
   finish.textContent = "Saving your details…";
   setError("");
+  // Ask for browser permission synchronously inside the user's submit gesture;
+  // waiting for the profile save first can cause browsers to reject the prompt.
+  let notificationPermissionPromise = null;
+  if ($("pushConsent").checked && "Notification" in window &&
+      "serviceWorker" in navigator && "PushManager" in window) {
+    try { notificationPermissionPromise = Notification.requestPermission(); }
+    catch (permissionError) { console.warn("Notification permission request was blocked.", permissionError); }
+  }
   const interests = Array.from(form.querySelectorAll('input[name="interest"]:checked')).map(input => input.value);
   const profile = {
     id: signedInUser.id,
@@ -173,7 +181,7 @@ form.addEventListener("submit", async (event) => {
   let notificationMessage = "";
   if ($("pushConsent").checked) {
     try {
-      await enablePushNotifications();
+      await enablePushNotifications(notificationPermissionPromise);
       notificationMessage = " Order and service notifications are enabled on this browser.";
     } catch (pushError) {
       notificationMessage = " " + (pushError?.message || "Notifications were not enabled.") + " You can still continue to your account.";
