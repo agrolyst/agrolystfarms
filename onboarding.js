@@ -1,81 +1,87 @@
-import { supabase } from "./supabase/supabase-client.js";
+import { supabase } from "/supabase/supabase-client.js";
 
 const $ = (id) => document.getElementById(id);
 const form = $("onboardingForm");
-const steps = Array.from(document.querySelectorAll(".onboarding-step"));
+const screens = Array.from(document.querySelectorAll(".onboarding-screen"));
 const errorEl = $("onboardingError");
+const nextButton = $("nextStep");
+const finishButton = $("finishSetup");
+const progressBar = $("progressBar");
 const VAPID_PUBLIC_KEY = "BF2PkVrCk_EShR7HUqc-9YRYI9StIBZf0lBGaysWmbB6-NUNV84jlu6vTCz40k4sA32Uk4Rs49mYF5H8QNIRJS0";
+const copy = [
+  { number: "01", title: "Let’s start with you", description: "Share your basic details so we can recognise you and stay in touch." },
+  { number: "02", title: "Tell us about your work", description: "Choose the areas where Agrolyst can be most useful to you." },
+  { number: "03", title: "Almost there", description: "Add your general location and decide which updates you would like to receive." }
+];
 let stepIndex = 0;
-let signedInUser = null;
+let user = null;
+let switching = false;
 
-function setError(message) {
-  errorEl.textContent = message || "";
+function setError(message) { errorEl.textContent = message || ""; }
+function refreshProgress() {
+  $("progressFill").style.width = ((stepIndex + 1) / screens.length * 100) + "%";
+  progressBar.setAttribute("aria-valuenow", String(stepIndex + 1));
+  $("stepNumber").textContent = copy[stepIndex].number;
+  $("stepTitle").textContent = copy[stepIndex].title;
+  $("stepDescription").textContent = copy[stepIndex].description;
+  nextButton.hidden = stepIndex === screens.length - 1;
+  finishButton.hidden = stepIndex !== screens.length - 1;
+  $("saveHint").textContent = stepIndex === screens.length - 1 ? "Ready when you are." : "Step " + (stepIndex + 1) + " of " + screens.length;
 }
-function updateProgress() {
-  steps.forEach((step, index) => {
-    step.setAttribute("aria-hidden", String(index !== stepIndex));
-  });
-  for (let i = 1; i <= 3; i++) {
-    $("progress" + i).style.width = i <= stepIndex + 1 ? "100%" : "0";
-  }
-  $("stepCounter").textContent = "Step " + (stepIndex + 1) + " of 3";
-  $("backStep").hidden = stepIndex === 0;
-  $("nextStep").hidden = stepIndex === steps.length - 1;
-  $("finishSetup").hidden = stepIndex !== steps.length - 1;
-}
-function transitionTo(nextIndex) {
-  if (nextIndex < 0 || nextIndex >= steps.length || nextIndex === stepIndex) return;
-  const current = steps[stepIndex];
-  const next = steps[nextIndex];
-  current.classList.remove("is-active");
-  current.classList.add("is-leaving");
-  next.classList.add("is-entering");
-  next.hidden = false;
-  stepIndex = nextIndex;
-  updateProgress();
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      next.classList.remove("is-entering");
-      next.classList.add("is-active");
-    });
-  });
-  window.setTimeout(() => {
-    current.classList.remove("is-leaving");
-  }, 430);
-  setError("");
-  const heading = next.querySelector("h2");
-  if (heading) heading.focus?.({ preventScroll: true });
-  window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-}
-function validateCurrentStep() {
-  const active = steps[stepIndex];
-  const controls = Array.from(active.querySelectorAll("input, select, textarea")).filter(el =>
-    !el.disabled && el.type !== "checkbox" && !el.readOnly
-  );
-  for (const control of controls) {
-    if (!control.checkValidity()) {
-      control.reportValidity();
-      control.focus();
+function validateCurrent() {
+  for (const field of screens[stepIndex].querySelectorAll("input,select,textarea")) {
+    if (field.disabled || field.readOnly || field.type === "checkbox" || field.type === "hidden") continue;
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      field.focus();
       return false;
     }
   }
   return true;
 }
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = window.atob(base64);
-  const output = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
-  return output;
+function advance() {
+  if (switching || stepIndex >= screens.length - 1 || !validateCurrent()) return;
+  switching = true;
+  setError("");
+  const current = screens[stepIndex];
+  const next = screens[stepIndex + 1];
+
+  // The current screen exits upward; the next screen rises from below.
+  current.classList.remove("is-current");
+  current.classList.add("is-leaving");
+  current.setAttribute("aria-hidden", "true");
+  next.style.display = "block";
+  next.classList.add("is-entering");
+  next.setAttribute("aria-hidden", "false");
+
+  stepIndex += 1;
+  refreshProgress();
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    next.classList.remove("is-entering");
+    next.classList.add("is-current");
+    window.setTimeout(() => {
+      current.classList.remove("is-leaving");
+      current.style.display = "none";
+      switching = false;
+      const firstField = next.querySelector("input:not([readonly]),select,textarea");
+      if (firstField) firstField.focus({ preventScroll: true });
+      if (window.lucide?.createIcons) window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+    }, 480);
+  }));
 }
-async function enablePushNotifications(permissionPromise) {
+function base64UrlBytes(value) {
+  const padding = "=".repeat((4 - value.length % 4) % 4);
+  const raw = atob((value + padding).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, char => char.charCodeAt(0));
+}
+async function subscribeToPush(permissionPromise) {
   if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-    throw new Error("This browser does not support background web push notifications. Your profile will still be saved.");
+    throw new Error("This browser does not support background web push. Your profile was saved successfully.");
   }
   const permission = permissionPromise ? await permissionPromise : await Notification.requestPermission();
   if (permission !== "granted") {
-    throw new Error("Notifications were not enabled in your browser. Your profile is saved; you can allow alerts later in browser settings.");
+    throw new Error("Browser notifications were not allowed. Your profile was saved; you can enable alerts later in account settings.");
   }
   const registration = await navigator.serviceWorker.register("/service-worker.js", { scope: "/" });
   await navigator.serviceWorker.ready;
@@ -83,85 +89,85 @@ async function enablePushNotifications(permissionPromise) {
   if (!subscription) {
     subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      applicationServerKey: base64UrlBytes(VAPID_PUBLIC_KEY)
     });
   }
-  const saved = await supabase.from("push_subscriptions").upsert({
-    user_id: signedInUser.id,
+  const { error: subscriptionError } = await supabase.from("push_subscriptions").upsert({
+    user_id: user.id,
     endpoint: subscription.endpoint,
     subscription: subscription.toJSON(),
     user_agent: navigator.userAgent,
     is_active: true
   }, { onConflict: "endpoint" });
-  if (saved.error) throw new Error("Browser permission was granted, but the notification subscription could not be saved. " + saved.error.message);
-  const profileSaved = await supabase.from("profiles").update({ push_notifications_enabled: true }).eq("id", signedInUser.id);
-  if (profileSaved.error) throw new Error("Your profile is saved, but notification preferences could not be stored. " + profileSaved.error.message);
+  if (subscriptionError) throw new Error("Browser permission was granted, but the notification subscription could not be saved. " + subscriptionError.message);
+
+  const { error: preferenceError } = await supabase.from("profiles")
+    .update({ push_notifications_enabled: true }).eq("id", user.id);
+  if (preferenceError) throw new Error("Your profile was saved, but the notification preference could not be saved. " + preferenceError.message);
 }
 async function loadProfile() {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    location.replace("login.html?next=onboarding");
+    location.replace("/login.html?next=onboarding");
     return;
   }
-  signedInUser = data.user;
-  $("onboardingEmail").textContent = data.user.email || "Signed-in customer";
-  $("profileEmail").value = data.user.email || "";
-  const { data: profile } = await supabase.from("profiles")
+  user = data.user;
+  $("profileEmail").value = user.email || "";
+
+  const { data: profile, error: profileError } = await supabase.from("profiles")
     .select("full_name,phone,customer_type,business_name,farm_type,farm_scale,interests,address_line,city,state,country,marketing_opt_in")
-    .eq("id", data.user.id).maybeSingle();
-  if (profile) {
-    $("profileFullName").value = profile.full_name || data.user.user_metadata?.full_name || "";
-    $("profilePhone").value = profile.phone || "";
-    $("customerType").value = profile.customer_type || "";
-    $("businessName").value = profile.business_name || "";
-    $("farmType").value = profile.farm_type || "";
-    $("farmScale").value = profile.farm_scale || "";
-    $("addressLine").value = profile.address_line || "";
-    $("city").value = profile.city || "";
-    $("state").value = profile.state || "";
-    $("country").value = profile.country || "Nigeria";
-    $("marketingConsent").checked = Boolean(profile.marketing_opt_in);
-    const interests = new Set(profile.interests || []);
-    form.querySelectorAll('input[name="interest"]').forEach(input => { input.checked = interests.has(input.value); });
-  } else {
-    $("profileFullName").value = data.user.user_metadata?.full_name || data.user.user_metadata?.name || "";
+    .eq("id", user.id).maybeSingle();
+  if (profileError) {
+    setError("We couldn’t load your saved details. Please refresh the page. " + profileError.message);
+    return;
   }
-  updateProgress();
+
+  $("profileFullName").value = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || "";
+  $("profilePhone").value = profile?.phone || "";
+  $("customerType").value = profile?.customer_type || "";
+  $("businessName").value = profile?.business_name || "";
+  $("farmType").value = profile?.farm_type || "";
+  $("farmScale").value = profile?.farm_scale || "";
+  $("addressLine").value = profile?.address_line || "";
+  $("city").value = profile?.city || "";
+  $("state").value = profile?.state || "";
+  $("country").value = profile?.country || "Nigeria";
+  $("marketingConsent").checked = Boolean(profile?.marketing_opt_in);
+  const selected = new Set(profile?.interests || []);
+  form.querySelectorAll('input[name="interest"]').forEach(input => { input.checked = selected.has(input.value); });
+  refreshProgress();
 }
-$("nextStep").addEventListener("click", () => {
-  if (!validateCurrentStep()) return;
-  transitionTo(stepIndex + 1);
-});
-$("backStep").addEventListener("click", () => transitionTo(stepIndex - 1));
+
+nextButton.addEventListener("click", advance);
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (stepIndex !== steps.length - 1) {
-    if (validateCurrentStep()) transitionTo(stepIndex + 1);
-    return;
+  if (stepIndex !== screens.length - 1) { advance(); return; }
+  if (switching || !validateCurrent() || !user) return;
+
+  // The permission request starts from the user's explicit Finish click.
+  let permissionPromise = null;
+  if ($("pushConsent").checked && "Notification" in window && "serviceWorker" in navigator && "PushManager" in window) {
+    try {
+      permissionPromise = Notification.permission === "granted"
+        ? Promise.resolve("granted")
+        : Notification.requestPermission();
+    } catch (error) { console.warn("Push permission prompt could not open.", error); }
   }
-  if (!validateCurrentStep()) return;
-  const finish = $("finishSetup");
-  finish.disabled = true;
-  finish.textContent = "Saving your details…";
+
+  switching = true;
+  finishButton.disabled = true;
+  finishButton.textContent = "Saving your profile…";
   setError("");
-  // Ask for browser permission synchronously inside the user's submit gesture;
-  // waiting for the profile save first can cause browsers to reject the prompt.
-  let notificationPermissionPromise = null;
-  if ($("pushConsent").checked && "Notification" in window &&
-      "serviceWorker" in navigator && "PushManager" in window) {
-    try { notificationPermissionPromise = Notification.requestPermission(); }
-    catch (permissionError) { console.warn("Notification permission request was blocked.", permissionError); }
-  }
-  const interests = Array.from(form.querySelectorAll('input[name="interest"]:checked')).map(input => input.value);
-  const profile = {
-    id: signedInUser.id,
+
+  const values = {
+    id: user.id,
     full_name: $("profileFullName").value.trim(),
     phone: $("profilePhone").value.trim(),
     customer_type: $("customerType").value,
     business_name: $("businessName").value.trim() || null,
     farm_type: $("farmType").value,
     farm_scale: $("farmScale").value || null,
-    interests,
+    interests: Array.from(form.querySelectorAll('input[name="interest"]:checked')).map(input => input.value),
     address_line: $("addressLine").value.trim(),
     city: $("city").value.trim(),
     state: $("state").value.trim(),
@@ -170,29 +176,33 @@ form.addEventListener("submit", async (event) => {
     marketing_opt_in: $("marketingConsent").checked,
     push_notifications_enabled: false
   };
-  const { error } = await supabase.from("profiles").upsert(profile, { onConflict: "id" });
+
+  const { error } = await supabase.from("profiles").upsert(values, { onConflict: "id" });
   if (error) {
-    setError("We couldn't save your profile yet. " + error.message);
-    finish.disabled = false;
-    finish.innerHTML = 'Finish setup <i data-lucide="check" aria-hidden="true"></i>';
-    window.lucide?.createIcons?.();
+    setError("We couldn’t save your profile. Please check the details and try again. " + error.message);
+    switching = false;
+    finishButton.disabled = false;
+    finishButton.innerHTML = 'Finish <i data-lucide="check" aria-hidden="true"></i>';
+    window.lucide?.createIcons?.({ attrs: { "stroke-width": 1.8 } });
     return;
   }
+
   let notificationMessage = "";
   if ($("pushConsent").checked) {
     try {
-      await enablePushNotifications(notificationPermissionPromise);
-      notificationMessage = " Order and service notifications are enabled on this browser.";
+      await subscribeToPush(permissionPromise);
+      notificationMessage = " Browser notifications are enabled on this device.";
     } catch (pushError) {
-      notificationMessage = " " + (pushError?.message || "Notifications were not enabled.") + " You can still continue to your account.";
-      console.warn("Agrolyst push notification setup:", pushError);
+      notificationMessage = " " + (pushError?.message || "Browser notifications were not enabled.") + " You can manage this later in account settings.";
+      console.warn("Agrolyst push setup:", pushError);
     }
   }
-  $("onboardingFormView").hidden = true;
+
+  $("onboarding-form-view").hidden = true;
+  $("onboardingComplete").hidden = false;
+  $("completionMessage").textContent = "Thanks, " + values.full_name + ". Your profile has been saved." + notificationMessage;
   $("onboardingComplete").classList.add("is-visible");
-  $("completionMessage").textContent = "Thank you, " + profile.full_name + ". Your profile has been saved securely to your Agrolyst account." + notificationMessage;
-  if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
+  switching = false;
+  if (window.lucide?.createIcons) window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
 });
-loadProfile().catch(error => {
-  setError("We couldn't load your account details. Please refresh or sign in again. " + (error?.message || ""));
-});
+loadProfile().catch(error => setError("We couldn’t load your account details. Please refresh and try again. " + (error?.message || "")));
