@@ -15,10 +15,15 @@ Official Agrolyst Farms website and Supabase-powered product catalogue.
 - Page-specific titles, descriptions, canonical URLs, indexable public login/signup pages, XML sitemap and Google verification meta tag.
 - Homepage `WebSite` and `OnlineStore` structured data with the official Agrolyst logo.
 - Stable root-level `/favicon.jpeg` is an exact copy of the official square 1080 × 1080 logo and is used for browser/search favicon, social previews and organization logo metadata.
-- Open Graph/social preview metadata, `sitemap.xml` and `robots.txt`.
+- Open Graph/social preview metadata, `sitemap.xml`, `robots.txt` and the installable web app manifest.
 - Keep `Agrolyst Logo.jpeg` as the original source asset; `/favicon.jpeg` is a no-space URL alias with identical image bytes for crawlers.
 
 ## Supabase
 All catalogue product names, images, prices, stock, and wholesale pricing are loaded from Supabase rather than hardcoded in product-card HTML. Read [the Supabase shop guide](supabase/README.md) for schema, checkout, receipt upload, delivery-zone and owner-profile setup.
 
 Google decides what it displays in Search after it crawls the live deployment. Deploy the latest default-branch changes, then check URLs and submit the sitemap in Google Search Console.
+
+## Customer onboarding and notifications
+- The profile setup page stores private customer details in the RLS-protected `profiles` table.
+- Web push subscriptions are saved to `push_subscriptions`, and order notifications are recorded in `notifications`.
+- For background push delivery, follow `supabase/ONBOARDING-PUSH.md` to add the VAPID and webhook secrets and configure a webhook in the Supabase Dashboard. Do not commit the private push-key file or any Edge Function secret.
