@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en-NG">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#123d2b">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Authentication Console | Agrolyst</title>
+  <link rel="icon" href="https://agrolystfarms.com/favicon.jpeg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#071b13;--panel:#0d281d;--panel2:#123626;--line:rgba(215,241,220,.13);--text:#f4fbf4;--muted:#a8c2b0;--green:#9be6a5;--green2:#3eb66d;--danger:#ffb8a8}
+    *{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;color:var(--text);font-family:"DM Sans",sans-serif;background:radial-gradient(ellipse at 15% 0%,rgba(43,137,79,.22),transparent 38%),radial-gradient(ellipse at 95% 95%,rgba(43,137,79,.13),transparent 34%),var(--bg)}
+    button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}a{color:var(--green)}.shell{width:min(1180px,calc(100% - 36px));margin:auto;padding:26px 0 40px;min-height:100vh;display:flex;flex-direction:column}
+    header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:8px 0 30px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}.brand img{width:46px;height:46px;object-fit:cover;border-radius:14px;border:1px solid var(--line)}.brand b{display:block;font:800 14px Manrope,sans-serif;letter-spacing:.13em}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.12em;margin-top:4px}.secure{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:9px 13px;color:var(--muted);font-size:12px}
+    main{flex:1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:clamp(24px,5vw,70px);align-items:center;padding:24px 0 50px}.eyebrow{display:flex;align-items:center;gap:9px;color:var(--green);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.pulse{width:7px;height:7px;background:var(--green2);border-radius:50%;box-shadow:0 0 0 5px rgba(62,182,109,.12)}h1{font:800 clamp(38px,5.2vw,68px)/1.03 Manrope,sans-serif;letter-spacing:-.055em;margin:23px 0 18px;max-width:680px}h1 span{color:var(--green)}.intro{max-width:570px;color:var(--muted);font-size:16px;line-height:1.8}.features{display:grid;gap:13px;margin:34px 0 0;padding:0;list-style:none}.features li{display:flex;gap:12px;align-items:flex-start;color:#d5e9da;font-size:14px;line-height:1.6}.check{width:23px;height:23px;display:grid;place-items:center;flex:0 0 23px;border:1px solid rgba(155,230,165,.28);border-radius:8px;color:var(--green);font-weight:800}
+    .card{position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(20,58,40,.96),rgba(10,31,22,.98));border:1px solid var(--line);border-radius:28px;padding:clamp(24px,4vw,38px);box-shadow:0 28px 90px rgba(0,0,0,.26);animation:rise .7s cubic-bezier(.2,.8,.2,1) both}.card:before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;background:rgba(85,196,117,.09);filter:blur(2px);right:-100px;top:-115px;pointer-events:none}.card>*{position:relative}.card-mark{display:grid;place-items:center;width:49px;height:49px;border-radius:16px;background:rgba(155,230,165,.1);border:1px solid rgba(155,230,165,.22);color:var(--green);font-size:23px}.card h2{font:800 27px Manrope,sans-serif;letter-spacing:-.035em;margin:22px 0 9px}.sub{color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 25px}.field{display:grid;gap:8px;margin:16px 0}.field label{font-size:12px;font-weight:700;color:#d7e9dc}.field input{width:100%;border:1px solid rgba(215,241,220,.17);background:rgba(3,17,11,.45);border-radius:12px;padding:14px 15px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}.field input:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,182,109,.13)}.primary,.secondary{width:100%;border:0;border-radius:12px;padding:14px 16px;font-weight:800;cursor:pointer;transition:transform .2s,filter .2s}.primary{margin-top:8px;color:#092113;background:linear-gradient(135deg,#b5f0b8,#6bd68d);box-shadow:0 10px 26px rgba(62,182,109,.14)}.primary:hover,.secondary:hover{transform:translateY(-1px);filter:brightness(1.04)}button:disabled{opacity:.55;cursor:wait;transform:none}.secondary{margin-top:10px;background:transparent;border:1px solid var(--line);color:var(--text)}.status{display:none;margin-top:16px;padding:12px 13px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13px;line-height:1.6;overflow-wrap:anywhere}.status.show{display:block}.status.error{color:var(--danger);border-color:rgba(255,184,168,.25)}.status.good{color:var(--green)}.status.info{color:#d5e9da}.fine{font-size:11px;line-height:1.65;color:#8eaa98;margin:18px 0 0}.hidden{display:none!important}.lock-panel{border:1px solid rgba(255,184,168,.22);background:rgba(90,36,27,.17);border-radius:15px;padding:16px;margin-top:18px}.lock-panel strong{display:block;color:#ffd0c5;font-size:13px;margin-bottom:6px}.lock-panel p{font-size:12px;color:var(--muted);line-height:1.7;margin:0}.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:24px;border-top:1px solid var(--line);color:#789484;font-size:11px}.foot a{text-decoration:none}.console-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(155,230,165,.08);border:1px solid rgba(155,230,165,.16);border-radius:9px;color:var(--green);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@media(max-width:820px){main{grid-template-columns:1fr;gap:28px;padding-top:12px}.hero{max-width:680px}.features{margin-top:24px}.card{max-width:560px;width:100%;margin:auto}h1{font-size:clamp(38px,10vw,58px)}}@media(max-width:480px){.shell{width:calc(100% - 24px);padding-top:16px}.brand img{width:40px;height:40px}.brand b{font-size:12px}.brand small{font-size:8px}.secure{font-size:10px;padding:8px}.card{padding:23px 19px;border-radius:22px}.intro{font-size:14px}.foot{font-size:10px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="brand" href="https://agrolystfarms.com/" rel="noopener">
+        <img src="https://agrolystfarms.com/favicon.jpeg" alt="Agrolyst Farms logo">
+        <span><b>AGROLYST</b><small>INTEGRATED FARMS AND SERVICES</small></span>
+      </a>
+      <span class="secure"><span aria-hidden="true">◈</span> Private workspace</span>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span class="pulse"></span> Identity & application access</div>
+        <h1>One trusted identity.<br><span>Connected agriculture.</span></h1>
+        <p class="intro">The Agrolyst Authentication Console is the planned control room for trusted application integrations, approved redirect URLs, and account connection settings.</p>
+        <ul class="features">
+          <li><span class="check">✓</span><span><strong>Approved redirect URLs</strong><br>Keep sign-in and callback destinations explicit and controlled.</span></li>
+          <li><span class="check">✓</span><span><strong>Application access settings</strong><br>Prepare for client registration, scopes, and integration lifecycle management.</span></li>
+          <li><span class="check">✓</span><span><strong>Server-enforced administration</strong><br>Privileged changes must be validated by trusted backend authorization.</span></li>
+        </ul>
+      </section>
+      <section class="card" aria-labelledby="cardTitle">
+        <div class="card-mark" aria-hidden="true">⌘</div>
+        <div class="console-chip">Admin access gate</div>
+        <h2 id="cardTitle">Sign in to continue</h2>
+        <p class="sub" id="cardSubtitle">Use your Agrolyst Account credentials. Signing in alone does not grant administrator privileges.</p>
+        <form id="signInForm">
+          <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" required placeholder="you@example.com"></div>
+          <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your account password"></div>
+          <button class="primary" id="signInButton" type="submit">Sign in securely <span aria-hidden="true">→</span></button>
+        </form>
+        <button class="secondary hidden" id="signOutButton" type="button">Sign out</button>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <div id="adminGate" class="lock-panel hidden">
+          <strong>Administrator authorization required</strong>
+          <p>Your account is signed in, but this account has not been granted the protected <code>app_metadata.oauth_admin</code> authorization. Console management stays disabled until an administrator is assigned securely on the server.</p>
+        </div>
+        <div id="adminReady" class="lock-panel hidden">
+          <strong>Identity verified</strong>
+          <p>Your account has the administrator claim. Client registration and secret-bearing operations remain unavailable until the protected server-side OAuth management API is configured.</p>
+        </div>
+        <p class="fine">Security note: this page does not store your password, expose a service-role key, or create OAuth clients in the browser. Never share client secrets in chat or public code.</p>
+      </section>
+    </main>
+    <footer class="foot"><span>Market to Farm. Empowering Farmers. Growing the Future.</span><span><a href="https://agrolystfarms.com/">Agrolyst Farms</a> · Authentication Console</span></footer>
+  </div>
+  <script>
+    (() => {
+      const SUPABASE_URL = "https://rcrgooivgssuerrgnuqw.supabase.co";
+      const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
+      const form = document.getElementById("signInForm");
+      const button = document.getElementById("signInButton");
+      const signOutButton = document.getElementById("signOutButton");
+      const status = document.getElementById("status");
+      const gate = document.getElementById("adminGate");
+      const ready = document.getElementById("adminReady");
+      const subtitle = document.getElementById("cardSubtitle");
+      const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+        global: { headers: { "X-Client-Info": "agrolyst-authentication-console/1.0" } }
+      });
+      function message(text, kind = "info") {
+        status.textContent = text;
+        status.className = "status show " + kind;
+      }
+      function resetPanels() {
+        gate.classList.add("hidden");
+        ready.classList.add("hidden");
+      }
+      async function showUser(user) {
+        if (!user) {
+          form.classList.remove("hidden");
+          signOutButton.classList.add("hidden");
+          resetPanels();
+          subtitle.textContent = "Use your Agrolyst Account credentials. Signing in alone does not grant administrator privileges.";
+          return;
+        }
+        form.classList.add("hidden");
+        signOutButton.classList.remove("hidden");
+        const { data, error } = await client.auth.getUser();
+        if (error || !data?.user) {
+          message("We could not verify the current session. Please sign in again.", "error");
+          return;
+        }
+        const verifiedUser = data.user;
+        if (verifiedUser.app_metadata?.oauth_admin === true) {
+          ready.classList.remove("hidden");
+          gate.classList.add("hidden");
+          subtitle.textContent = "Your signed-in identity carries the administrator claim. Protected actions still require the secure backend.";
+          message("Signed in as " + (verifiedUser.email || "your Agrolyst account") + ". Administrator claim detected.", "good");
+        } else {
+          gate.classList.remove("hidden");
+          ready.classList.add("hidden");
+          subtitle.textContent = "Your identity is verified, but administrator access has not been granted to this account.";
+          message("Signed in as " + (verifiedUser.email || "your Agrolyst account") + ". Administrator access is not enabled.", "info");
+        }
+      }
+      if (!client) {
+        form.classList.add("hidden");
+        message("The authentication library did not load. Refresh the page or try again later.", "error");
+        return;
+      }
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        button.disabled = true;
+        button.textContent = "Verifying account…";
+        resetPanels();
+        try {
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          const { data, error } = await client.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          await showUser(data.user);
+        } catch (error) {
+          message(error?.message || "Sign-in failed. Check your details and try again.", "error");
+        } finally {
+          button.disabled = false;
+          button.innerHTML = 'Sign in securely <span aria-hidden="true">→</span>';
+        }
+      });
+      signOutButton.addEventListener("click", async () => {
+        signOutButton.disabled = true;
+        const { error } = await client.auth.signOut();
+        signOutButton.disabled = false;
+        if (error) {
+          message("Sign-out failed. Please retry.", "error");
+          return;
+        }
+        resetPanels();
+        status.className = "status";
+        await showUser(null);
+        message("You have signed out.", "good");
+      });
+      client.auth.getSession().then(({ data, error }) => {
+        if (error) message("Session check failed. Please sign in again.", "error");
+        else if (data.session) showUser(data.session.user);
+      });
+      client.auth.onAuthStateChange((_event, session) => {
+        if (!session) showUser(null);
+      });
+    })();
+  </script>
+</body>
+</html>
