@@ -99,7 +99,7 @@
 
     const pathname = location.pathname.replace(/\/+$/, "") || "/";
     const activeRoutes = {
-      "/about": "About Us", "/team": "About Us", "/board": "About Us",
+      "/about": "About Us", "/team": "About Us", "/board": "About Us", "/website-technology": "About Us", "/technical-support": "About Us",
       "/partners": "About Us", "/ambassadors": "About Us", "/careers": "About Us",
       "/products": "Products", "/agribusiness-accelerator": "Products",
       "/agribusiness-brand-strategy-masterclass": "Products", "/marketplace": "Community",
