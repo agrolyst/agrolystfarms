@@ -24,7 +24,7 @@ async function routeSignedInUser(user) {
   const { data, error } = await client.auth.getSession();
   if (!error && data.session) await routeSignedInUser(data.session.user);
 })();
-let mode = location.pathname.toLowerCase().endsWith("/signup.html") || location.hash === "#signup" ? "signup" : "signin";
+let mode = location.pathname.toLowerCase().replace(/\/+$/, "").endsWith("/signup") || location.hash === "#signup" ? "signup" : "signin";
 function setStatus(message, error = true) { statusEl.textContent = message; statusEl.style.color = error ? "#9b3c23" : "#176d37"; }
 function renderMode() {
   const signup = mode === "signup";
@@ -33,10 +33,10 @@ function renderMode() {
   document.getElementById("nameWrap").hidden = !signup;
   document.getElementById("fullName").required = signup;
   document.getElementById("submitBtn").textContent = signup ? "Create account" : "Sign in";
-  document.getElementById("switchText").innerHTML = signup ? 'Already registered? <a href="login.html" id="switchMode">Sign in</a>' : 'New to Agrolyst? <a href="signup.html" id="switchMode">Create an account</a>';
+  document.getElementById("switchText").innerHTML = signup ? 'Already registered? <a href="/login/" id="switchMode">Sign in</a>' : 'New to Agrolyst? <a href="/signup/" id="switchMode">Create an account</a>';
   document.getElementById("switchMode").addEventListener("click", e => {
     e.preventDefault();
-    location.href = signup ? "login.html" : "signup.html";
+    location.href = signup ? "/login/" : "/signup/";
   });
 }
 renderMode();
@@ -47,7 +47,7 @@ form.addEventListener("submit", async e => {
   try {
     if (mode === "signup") {
       const fullName = document.getElementById("fullName").value.trim();
-      const { data, error } = await client.auth.signUp({email, password, options:{data:{full_name:fullName}, emailRedirectTo:location.origin + "/callback.html"}});
+      const { data, error } = await client.auth.signUp({email, password, options:{data:{full_name:fullName}, emailRedirectTo:location.origin + "/callback/"}});
       if (error) throw error;
       if (data.session && data.user) {
         setStatus("Account created. Let's finish your profile…", false);
@@ -65,13 +65,13 @@ form.addEventListener("submit", async e => {
 });
 document.getElementById("googleBtn").addEventListener("click", async () => {
   setStatus("Connecting to Google…", false);
-  const { error } = await client.auth.signInWithOAuth({provider:"google", options:{redirectTo:location.origin + "/callback.html", queryParams:{prompt:"select_account"}}});
+  const { error } = await client.auth.signInWithOAuth({provider:"google", options:{redirectTo:location.origin + "/callback/", queryParams:{prompt:"select_account"}}});
   if (error) setStatus(error.message || "Google sign-in failed.");
 });
 document.getElementById("resetLink").addEventListener("click", async e => {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
   if (!email) { setStatus("Enter your email address first, then choose Forgot password."); return; }
-  const { error } = await client.auth.resetPasswordForEmail(email, {redirectTo:location.origin + "/callback.html"});
+  const { error } = await client.auth.resetPasswordForEmail(email, {redirectTo:location.origin + "/callback/"});
   setStatus(error ? error.message : "If that email is registered, a password reset link will arrive shortly.", Boolean(error));
 });
