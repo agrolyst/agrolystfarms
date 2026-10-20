@@ -8,10 +8,11 @@ Official Agrolyst Farms website and Supabase-powered product catalogue.
 - `products.html` — product ranges plus catalogue fetched from Supabase.
 - `partnerships.html` — manufacturer, supplier, farmer, distributor, investor and institutional partnership opportunities.
 - `privacy.html` and `agreement.html` — privacy and terms pages.
-- `auth.html`, `callback.html`, `account.html` — customer authentication and account flow.
+- `login.html` and `signup.html` — dedicated customer authentication pages with page-specific SEO metadata.
+- `auth.html`, `callback.html`, `account.html` — legacy authentication and customer account flow (kept out of the public sitemap where appropriate).
 
 ## SEO and brand
-- Page-specific titles, descriptions, canonical URLs and Google verification meta tag.
+- Page-specific titles, descriptions, canonical URLs, indexable public login/signup pages, XML sitemap and Google verification meta tag.
 - Homepage `WebSite` and `OnlineStore` structured data with the official Agrolyst logo.
 - Stable root-level `/favicon.jpeg` is an exact copy of the official square 1080 × 1080 logo and is used for browser/search favicon, social previews and organization logo metadata.
 - Open Graph/social preview metadata, `sitemap.xml` and `robots.txt`.
