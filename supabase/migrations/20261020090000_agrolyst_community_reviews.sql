@@ -52,3 +52,6 @@ grant select on public.agrolyst_review_comments to anon, authenticated;
 grant insert (review_id, parent_id, author_name, body, visitor_id) on public.agrolyst_review_comments to anon, authenticated;
 grant select on public.agrolyst_review_likes to anon, authenticated;
 grant insert (review_id, visitor_id) on public.agrolyst_review_likes to anon, authenticated;
+
+-- Publish community changes for live updates in open website sessions.
+alter publication supabase_realtime add table public.agrolyst_reviews, public.agrolyst_review_comments, public.agrolyst_review_likes;
