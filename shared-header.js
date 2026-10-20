@@ -4,6 +4,35 @@
   const supabaseUrl = "https://rcrgooivgssuerrgnuqw.supabase.co";
   const supabasePublicKey = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
 
+  function activeTranslateParams() {
+    if (!location.hostname.endsWith(".translate.goog")) return null;
+    const params = new URLSearchParams(location.search);
+    return params.get("_x_tr_tl") ? params : null;
+  }
+
+  function addTranslateParams(url) {
+    const params = activeTranslateParams();
+    if (!params) return url;
+    params.forEach((value, key) => {
+      if (key.startsWith("_x_tr_")) url.searchParams.set(key, value);
+    });
+    return url;
+  }
+
+  function translatedAssetUrl(path) {
+    return addTranslateParams(new URL(path, location.origin)).href;
+  }
+
+  function preserveTranslatedNavigation(header) {
+    const params = activeTranslateParams();
+    if (!params) return;
+    header.querySelectorAll('a[href^="/"]').forEach(link => {
+      const target = new URL(link.getAttribute("href"), location.href);
+      if (target.origin !== location.origin) return;
+      link.href = addTranslateParams(target).href;
+    });
+  }
+
   async function ensureSupabase() {
     if (window.supabase?.createClient) return window.supabase;
     return new Promise((resolve, reject) => {
@@ -116,6 +145,7 @@
         if (toggle.textContent.trim().startsWith(activeLabel)) toggle.setAttribute("aria-current", "page");
       });
     }
+    preserveTranslatedNavigation(header);
     syncAccountLink(header);
     window.dispatchEvent(new CustomEvent("agrolyst:header-ready", { detail: { header } }));
   }
@@ -124,7 +154,7 @@
     if (!mount || mount.dataset.headerLoading === "true") return;
     mount.dataset.headerLoading = "true";
     try {
-      const response = await fetch(partialUrl, { credentials: "same-origin" });
+      const response = await fetch(translatedAssetUrl(partialUrl), { credentials: "same-origin" });
       if (!response.ok) throw new Error("Shared header could not be loaded.");
       const markup = await response.text();
       const template = document.createElement("template");
