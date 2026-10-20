@@ -32,6 +32,7 @@
     target.searchParams.set("_x_tr_hl", "en");
     target.searchParams.set("_x_tr_pto", "wapp");
     preserveNonTranslationParams(target);
+    if (location.hash) target.hash = location.hash;
     return target;
   }
 
