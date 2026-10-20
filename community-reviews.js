@@ -162,6 +162,11 @@
       feed.innerHTML='<div class="agr-empty"><h4>Community connection unavailable</h4><p>Please refresh the page or contact Agrolyst if the issue continues.</p></div>';return;
     }
     client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    client.channel('agrolyst-community-reviews')
+      .on('postgres_changes',{event:'*',schema:'public',table:'agrolyst_reviews'},()=>refresh())
+      .on('postgres_changes',{event:'*',schema:'public',table:'agrolyst_review_comments'},()=>refresh())
+      .on('postgres_changes',{event:'*',schema:'public',table:'agrolyst_review_likes'},()=>refresh())
+      .subscribe();
     refresh();
   }
   function boot(){document.querySelectorAll('[data-agrolyst-reviews]').forEach(init);}
