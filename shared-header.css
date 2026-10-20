@@ -16,7 +16,7 @@
 .ag-shared-chevron{display:inline-block;width:0;height:0;margin-left:1px;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;transition:transform .16s ease}
 .ag-shared-dropdown.is-open .ag-shared-chevron{transform:rotate(180deg)}
 .ag-shared-dropdown__menu{position:absolute;top:100%;left:-1px;z-index:1001;display:none;width:218px;padding:7px 0;background:#fff;border:1px solid #d9ded8;border-top:1px solid #ecefea;box-shadow:0 8px 18px #102d1710}
-.ag-shared-dropdown.is-open .ag-shared-dropdown__menu,.ag-shared-dropdown:focus-within .ag-shared-dropdown__menu{display:block}
+.ag-shared-dropdown.is-open .ag-shared-dropdown__menu{display:block}
 @media(min-width:791px){.ag-shared-dropdown:hover .ag-shared-dropdown__menu{display:block}.ag-shared-dropdown:hover .ag-shared-chevron{transform:rotate(180deg)}}
 .ag-shared-dropdown__menu a{display:flex;align-items:center;min-height:31px;padding:4px 14px;color:#176d2b;text-decoration:none;font:400 .88rem/1.35 "DM Sans",sans-serif;white-space:nowrap}
 .ag-shared-dropdown__menu a:hover,.ag-shared-dropdown__menu a:focus-visible{background:#f3f7f1;color:#0b4a20}
