@@ -1,72 +1,91 @@
 (() => {
+  "use strict";
+  const ORIGINAL_ORIGIN = "https://agrolystfarms.com";
+  const TRANSLATE_PROXY_ORIGIN = "https://agrolystfarms-com.translate.goog";
   const languages = [
     ["en","English"],["ha","Hausa"],["yo","Yoruba"],["ig","Igbo"],
     ["fr","French"],["ar","Arabic"],["es","Spanish"],["pt","Portuguese"],
     ["sw","Swahili"],["hi","Hindi"],["zh-CN","Chinese"],["de","German"]
   ];
-  const selectMarkup = () => '<label class="ag-translate-float" aria-label="Translate this website with Google"><span aria-hidden="true">文</span><select data-ag-translate aria-label="Translate this website with Google"><option value="">Translate</option>' +
-    languages.map(([code,name]) => '<option value="' + code + '">' + name + '</option>').join("") + '</select></label>';
+  const languageOptions = () => languages.map(([code,name]) =>
+    '<option value="' + code + '">' + name + '</option>'
+  ).join("");
+
+  function selectMarkup() {
+    return '<label class="ag-translate-float ag-translate-float--standalone" aria-label="Translate this page with Google">' +
+      '<span aria-hidden="true">文</span>' +
+      '<select data-ag-translate aria-label="Translate this page with Google">' +
+      '<option value="">Translate page</option>' + languageOptions() +
+      '</select></label>';
+  }
+
+  function preserveNonTranslationParams(target) {
+    new URLSearchParams(location.search).forEach((value, key) => {
+      if (!key.startsWith("_x_tr_") && key !== "_x_tr_hl") target.searchParams.set(key, value);
+    });
+  }
+
+  function translatedPageUrl(language) {
+    const target = new URL(TRANSLATE_PROXY_ORIGIN + location.pathname);
+    target.searchParams.set("_x_tr_sl", "auto");
+    target.searchParams.set("_x_tr_tl", language);
+    target.searchParams.set("_x_tr_hl", "en");
+    target.searchParams.set("_x_tr_pto", "wapp");
+    preserveNonTranslationParams(target);
+    return target;
+  }
+
+  function originalPageUrl() {
+    const target = new URL(ORIGINAL_ORIGIN + location.pathname);
+    preserveNonTranslationParams(target);
+    if (location.hash) target.hash = location.hash;
+    return target;
+  }
 
   function translateTo(language) {
     if (!language) return;
+    const isTranslatedHost = location.hostname.endsWith(".translate.goog");
     if (language === "en") {
-      const original = new URL(location.href);
-      if (original.hostname.endsWith(".translate.goog")) {
-        const originalPath = original.pathname;
-        const originalHost = original.hostname.replace(/-translate\.goog$/, "").replace(/-/g, ".");
-        const url = new URL("https://" + originalHost + originalPath);
-        original.searchParams.forEach((value, key) => { if (!key.startsWith("_x_tr_")) url.searchParams.set(key, value); });
-        location.href = url.href;
-      }
+      if (isTranslatedHost) location.assign(originalPageUrl().href);
       return;
     }
-    // Google Translate's website proxy translates page content and rewrites internal links
-    // so visitors can continue navigating pages in their chosen language.
-    const host = location.hostname;
-    const originalHost = host.endsWith(".translate.goog")
-      ? host.replace(/\.translate\.goog$/, "").replace(/-/g, ".")
-      : host;
-    const translatedHost = originalHost.replace(/\./g, "-") + ".translate.goog";
-    const translated = new URL("https://" + translatedHost + location.pathname);
-    translated.searchParams.set("_x_tr_sl", "auto");
-    translated.searchParams.set("_x_tr_tl", language);
-    translated.searchParams.set("_x_tr_hl", "en");
-    translated.searchParams.set("_x_tr_pto", "wapp");
-    new URLSearchParams(location.search).forEach((value,key) => {
-      if (!key.startsWith("_x_tr_")) translated.searchParams.set(key,value);
-    });
-    location.href = translated.href;
+    const currentTarget = new URLSearchParams(location.search).get("_x_tr_tl");
+    if (isTranslatedHost && currentTarget === language) return;
+    location.assign(translatedPageUrl(language).href);
   }
 
   function bind(root = document) {
     root.querySelectorAll("[data-ag-translate]").forEach(select => {
       if (select.dataset.translateBound === "true") return;
       select.dataset.translateBound = "true";
+      const selectedLanguage = new URLSearchParams(location.search).get("_x_tr_tl");
+      if (selectedLanguage && [...select.options].some(option => option.value === selectedLanguage)) {
+        select.value = selectedLanguage;
+      }
       select.addEventListener("change", () => translateTo(select.value));
     });
   }
 
   function addFloatingPicker() {
-    if (document.querySelector("[data-ag-shared-header], [data-shared-header-mount]")) return;
-    if (document.querySelector(".ag-translate-float")) return;
+    if (document.querySelector(".ag-translate-float--standalone")) return;
+    if (!document.body) return;
     const template = document.createElement("div");
     template.innerHTML = selectMarkup();
     const control = template.firstElementChild;
-    control.classList.add("ag-translate-float--standalone");
     document.body.appendChild(control);
     bind(control);
   }
 
   function boot() {
-    bind();
     addFloatingPicker();
-    window.addEventListener("agrolyst:header-ready", event => bind(event.detail?.header || document));
+    bind();
+    // Header insertion is asynchronous. Keeping the picker independent of the header
+    // means it remains in the same fixed corner on both original and translated pages.
     const observer = new MutationObserver(() => {
-      bind();
       addFloatingPicker();
+      bind();
     });
-    observer.observe(document.body, { childList: true, subtree: true });
-    // Avoid keeping a long-lived observer after the shared header and picker are available.
+    observer.observe(document.documentElement, { childList: true, subtree: true });
     window.setTimeout(() => observer.disconnect(), 12000);
   }
 
