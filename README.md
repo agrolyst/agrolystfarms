@@ -28,4 +28,12 @@ Google decides what it displays in Search after it crawls the live deployment. D
 - Web push subscriptions are saved to `push_subscriptions`, and order notifications are recorded in `notifications`.
 - For background push delivery, follow `supabase/ONBOARDING-PUSH.md` to add the VAPID and webhook secrets and configure a webhook in the Supabase Dashboard. Do not commit the private push-key file or any Edge Function secret.
 
-The customer profile setup uses the clean path `https://agrolystfarms.com/onboarding/`; `/onboarding/` is only a legacy redirect.
+The customer profile setup is served at `https://agrolystfarms.com/onboarding/` from `onboarding/index.html`. The old `/onboarding.html` URL redirects to the clean route.
+
+## Shared site header
+
+- The shared header markup lives in `partials/site-header.html`.
+- Header styling lives in `shared-header.css`; dropdown behavior, mobile navigation, and the signed-in account link live in `shared-header.js`.
+- Current pages using it: `/`, `/about/`, `/products/`, `/partnerships/`, `/account/`, `/privacy/`, and `/agreement/`.
+- To add it to a new page, put `<div data-shared-header-mount></div>` where the header belongs, add `<link rel="stylesheet" href="/shared-header.css">` in the head, and add `<script src="/shared-header.js" defer></script>` before the closing body tag. Edit the partial/style/script above to change the shared header once for all pages.
+- Authentication and onboarding pages keep their dedicated branded layout rather than the main site navigation.
