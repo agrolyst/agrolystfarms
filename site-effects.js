@@ -70,7 +70,7 @@
       else if (href.includes("partnership")) name = "handshake";
       else if (href.includes("auth") || href.includes("account")) name = "user-round";
       else if (href.includes("#contact") || /contact/i.test(text)) name = "message-circle";
-      else if (href === "index.html" || href === "#home" || href === "#top") name = "house";
+      else if (href === "/" || href === "/index.html" || href === "index.html" || href === "#home" || href === "#top") name = "house";
       if (name) addIcon(link, name, "site-link-icon", true);
     });
 
