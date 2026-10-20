@@ -7,7 +7,7 @@ const statusEl = document.getElementById("status");
 const modeLink = document.getElementById("switchMode");
 // If a valid session already exists, skip the sign-in page.
 (async () => { const { data } = await client.auth.getSession(); if (data.session) location.replace("index.html"); })();
-let mode = location.hash === "#signup" ? "signup" : "signin";
+let mode = location.pathname.toLowerCase().endsWith("/signup.html") || location.hash === "#signup" ? "signup" : "signin";
 function setStatus(message, error = true) { statusEl.textContent = message; statusEl.style.color = error ? "#9b3c23" : "#176d37"; }
 function renderMode() {
   const signup = mode === "signup";
@@ -16,8 +16,11 @@ function renderMode() {
   document.getElementById("nameWrap").hidden = !signup;
   document.getElementById("fullName").required = signup;
   document.getElementById("submitBtn").textContent = signup ? "Create account" : "Sign in";
-  document.getElementById("switchText").innerHTML = signup ? 'Already registered? <a href="#signin" id="switchMode">Sign in</a>' : 'New to Agrolyst? <a href="#signup" id="switchMode">Create an account</a>';
-  document.getElementById("switchMode").addEventListener("click", e => { e.preventDefault(); mode = signup ? "signin" : "signup"; history.replaceState(null, "", mode === "signup" ? "#signup" : "#signin"); setStatus(""); renderMode(); });
+  document.getElementById("switchText").innerHTML = signup ? 'Already registered? <a href="login.html" id="switchMode">Sign in</a>' : 'New to Agrolyst? <a href="signup.html" id="switchMode">Create an account</a>';
+  document.getElementById("switchMode").addEventListener("click", e => {
+    e.preventDefault();
+    location.href = signup ? "login.html" : "signup.html";
+  });
 }
 renderMode();
 form.addEventListener("submit", async e => {
