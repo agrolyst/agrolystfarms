@@ -45,22 +45,22 @@ function showError(text) {
     // Keep the URL clean so one-time auth codes are not left in the address bar.
     history.replaceState({}, document.title, location.pathname);
     const user = data.session.user;
-    let destination = "onboarding.html";
+    let destination = "/onboarding/";
     try {
       const { data: profile, error: profileError } = await client.from("profiles")
         .select("onboarding_completed").eq("id", user.id).maybeSingle();
-      if (!profileError && profile && profile.onboarding_completed) destination = "index.html";
+      if (!profileError && profile && profile.onboarding_completed) destination = "/";
     } catch (profileError) {
       console.warn("Could not check onboarding completion; opening profile setup.", profileError);
     }
     heading.textContent = "You're signed in";
     message.textContent = "Your Agrolyst Farms account has been verified successfully.";
-    status.textContent = destination === "onboarding.html" ? "Let's complete your customer profile…" : "Taking you to the website…";
+    status.textContent = destination === "/onboarding/" ? "Let's complete your customer profile…" : "Taking you to the website…";
     status.style.color = "#176d37";
     spinner.hidden = true;
     continueLink.hidden = false;
     continueLink.href = destination;
-    continueLink.textContent = destination === "onboarding.html" ? "Complete your profile" : "Continue to Agrolyst Farms";
+    continueLink.textContent = destination === "/onboarding/" ? "Complete your profile" : "Continue to Agrolyst Farms";
     window.setTimeout(() => { location.replace(destination); }, 1200);
   } catch (error) {
     showError(error && error.message ? error.message : "Authentication failed. Please try again.");
