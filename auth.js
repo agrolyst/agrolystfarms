@@ -4,9 +4,26 @@ const SUPABASE_ANON_KEY = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const form = document.getElementById("authForm");
 const statusEl = document.getElementById("status");
-const modeLink = document.getElementById("switchMode");
-// If a valid session already exists, skip the sign-in page.
-(async () => { const { data } = await client.auth.getSession(); if (data.session) location.replace("index.html"); })();
+async function routeSignedInUser(user) {
+  if (!user || !user.id) {
+    location.replace("onboarding.html");
+    return;
+  }
+  try {
+    const { data: profile, error } = await client.from("profiles")
+      .select("onboarding_completed").eq("id", user.id).maybeSingle();
+    if (error) throw error;
+    location.replace(profile && profile.onboarding_completed ? "index.html" : "onboarding.html");
+  } catch (error) {
+    console.warn("Unable to read onboarding state; sending customer to profile setup.", error);
+    location.replace("onboarding.html");
+  }
+}
+// Existing authenticated visitors go to profile setup only if it is incomplete.
+(async () => {
+  const { data, error } = await client.auth.getSession();
+  if (!error && data.session) await routeSignedInUser(data.session.user);
+})();
 let mode = location.pathname.toLowerCase().endsWith("/signup.html") || location.hash === "#signup" ? "signup" : "signin";
 function setStatus(message, error = true) { statusEl.textContent = message; statusEl.style.color = error ? "#9b3c23" : "#176d37"; }
 function renderMode() {
@@ -32,12 +49,17 @@ form.addEventListener("submit", async e => {
       const fullName = document.getElementById("fullName").value.trim();
       const { data, error } = await client.auth.signUp({email, password, options:{data:{full_name:fullName}, emailRedirectTo:location.origin + "/callback.html"}});
       if (error) throw error;
-      setStatus(data.session ? "Account created. You are signed in." : "Account created. Check your email to confirm it.", false);
+      if (data.session && data.user) {
+        setStatus("Account created. Let's finish your profile…", false);
+        await routeSignedInUser(data.user);
+      } else {
+        setStatus("Account created. Check your email to confirm it. After confirming, we’ll guide you through your profile setup.", false);
+      }
     } else {
-      const { error } = await client.auth.signInWithPassword({email, password});
+      const { data, error } = await client.auth.signInWithPassword({email, password});
       if (error) throw error;
-      setStatus("Signed in successfully. Redirecting…", false);
-      location.replace("index.html");
+      setStatus("Signed in. Checking your profile…", false);
+      await routeSignedInUser(data.user);
     }
   } catch (error) { setStatus(error.message || "Authentication failed."); }
 });
