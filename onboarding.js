@@ -108,7 +108,7 @@ async function subscribeToPush(permissionPromise) {
 async function loadProfile() {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    location.replace("/login.html?next=onboarding");
+    location.replace("/login/?next=onboarding");
     return;
   }
   user = data.user;
