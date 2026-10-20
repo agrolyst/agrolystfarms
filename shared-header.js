@@ -1,10 +1,8 @@
 (() => {
-  const mount = document.querySelector("[data-shared-header-mount]");
-  if (!mount) return;
-
-  const PARTIAL_URL = "/partials/site-header.html";
-  const SUPABASE_URL = "https://rcrgooivgssuerrgnuqw.supabase.co";
-  const SUPABASE_PUBLIC_KEY = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
+  const mountSelector = "[data-shared-header-mount]";
+  const partialUrl = "/partials/site-header.html";
+  const supabaseUrl = "https://rcrgooivgssuerrgnuqw.supabase.co";
+  const supabasePublicKey = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
 
   async function ensureSupabase() {
     if (window.supabase?.createClient) return window.supabase;
@@ -12,118 +10,127 @@
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
       script.onload = () => window.supabase?.createClient ? resolve(window.supabase) : reject(new Error("Supabase client did not initialise."));
-      script.onerror = () => reject(new Error("Could not load the account session client."));
+      script.onerror = () => reject(new Error("Could not load account session client."));
       document.head.appendChild(script);
     });
   }
 
-  function setMenuClosed(header) {
+  function closeDropdowns(header, except = null) {
+    header.querySelectorAll(".ag-shared-dropdown").forEach(dropdown => {
+      if (dropdown === except) return;
+      dropdown.classList.remove("is-open");
+      dropdown.querySelector(".ag-shared-dropdown__toggle")?.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function closeMobileNav(header) {
     const nav = header.querySelector(".ag-shared-nav");
     const toggle = header.querySelector(".ag-shared-menu-toggle");
-    const about = header.querySelector(".ag-shared-dropdown");
-    const aboutToggle = header.querySelector(".ag-shared-dropdown__toggle");
     nav?.classList.remove("is-open");
     toggle?.setAttribute("aria-expanded", "false");
     toggle?.setAttribute("aria-label", "Open navigation menu");
-    about?.classList.remove("is-open");
-    aboutToggle?.setAttribute("aria-expanded", "false");
+    closeDropdowns(header);
+  }
+
+  async function syncAccountLink(header) {
+    const link = header.querySelector("#accountNav");
+    if (!link) return;
+    try {
+      const sdk = await ensureSupabase();
+      const client = sdk.createClient(supabaseUrl, supabasePublicKey);
+      const render = session => {
+        if (session?.user) {
+          link.textContent = "My Account";
+          link.href = "/account/";
+          link.setAttribute("aria-label", "Open your Agrolyst customer account");
+        } else {
+          link.textContent = "Sign in";
+          link.href = "/login/";
+          link.removeAttribute("aria-label");
+        }
+      };
+      const { data } = await client.auth.getSession();
+      render(data?.session);
+      client.auth.onAuthStateChange((_event, session) => render(session));
+    } catch (error) {
+      console.info("Account navigation remains on sign-in until session state is available.", error);
+    }
   }
 
   function wireHeader(header) {
     const nav = header.querySelector(".ag-shared-nav");
     const menuToggle = header.querySelector(".ag-shared-menu-toggle");
-    const aboutDropdown = header.querySelector(".ag-shared-dropdown");
-    const aboutToggle = header.querySelector(".ag-shared-dropdown__toggle");
 
     menuToggle?.addEventListener("click", () => {
       const open = !nav.classList.contains("is-open");
       nav.classList.toggle("is-open", open);
       menuToggle.setAttribute("aria-expanded", String(open));
       menuToggle.setAttribute("aria-label", open ? "Close navigation menu" : "Open navigation menu");
-      if (!open) {
-        aboutDropdown.classList.remove("is-open");
-        aboutToggle.setAttribute("aria-expanded", "false");
-      }
+      if (!open) closeDropdowns(header);
     });
 
-    aboutToggle?.addEventListener("click", (event) => {
-      event.preventDefault();
-      const open = !aboutDropdown.classList.contains("is-open");
-      aboutDropdown.classList.toggle("is-open", open);
-      aboutToggle.setAttribute("aria-expanded", String(open));
+    header.querySelectorAll(".ag-shared-dropdown__toggle").forEach(toggle => {
+      toggle.addEventListener("click", event => {
+        event.preventDefault();
+        const dropdown = toggle.closest(".ag-shared-dropdown");
+        const open = !dropdown.classList.contains("is-open");
+        closeDropdowns(header, dropdown);
+        dropdown.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+      });
     });
 
     nav?.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => setMenuClosed(header));
+      link.addEventListener("click", () => {
+        closeMobileNav(header);
+      });
     });
 
     document.addEventListener("click", event => {
-      if (!header.contains(event.target)) {
-        aboutDropdown?.classList.remove("is-open");
-        aboutToggle?.setAttribute("aria-expanded", "false");
-      }
+      if (!header.contains(event.target)) closeDropdowns(header);
     });
-
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") {
-        setMenuClosed(header);
-        aboutToggle?.focus();
+        const openedToggle = header.querySelector(".ag-shared-dropdown.is-open .ag-shared-dropdown__toggle");
+        closeMobileNav(header);
+        if (openedToggle) openedToggle.focus();
       }
     });
 
-    const path = location.pathname.replace(/\/+$/, "") || "/";
-    header.querySelectorAll("[data-nav-route]").forEach(link => {
-      const route = link.dataset.navRoute;
-      const target = routeMap[route];
-      if ((route === "home" && path === "/") ||
-          (route === "products" && path === "/products") ||
-          (route === "partnerships" && path === "/partnerships") ||
-          (route === "account" && path === "/account")) {
-        link.setAttribute("aria-current", "page");
-      }
-    });
-
-    const aboutActive = path === "/about";
-    if (aboutActive) {
-      aboutToggle.classList.add("is-current");
-      aboutToggle.setAttribute("aria-current", "page");
+    const pathname = location.pathname.replace(/\/+$/, "") || "/";
+    const activeRoutes = {
+      "/about": "About Us", "/team": "About Us", "/board": "About Us",
+      "/partners": "About Us", "/ambassadors": "About Us", "/careers": "About Us",
+      "/products": "Products", "/agribusiness-accelerator": "Products",
+      "/agribusiness-brand-strategy-masterclass": "Products", "/marketplace": "Community",
+      "/our-communities": "Community", "/add-testimonial": "Community",
+      "/associate-directory": "Opportunities", "/data": "Opportunities", "/events": "Opportunities",
+      "/training-workshop": "Opportunities", "/financial-support": "Opportunities", "/capacity-building": "Opportunities",
+      "/podcast": "Narrative Changers", "/food-culture": "Narrative Changers",
+      "/agribusiness-clinic": "Narrative Changers", "/agrifood-webinar-series": "Narrative Changers",
+      "/news-updates": "Narrative Changers", "/partnerships": "About Us"
+    };
+    const activeLabel = activeRoutes[pathname];
+    if (activeLabel) {
+      header.querySelectorAll(".ag-shared-dropdown__toggle").forEach(toggle => {
+        if (toggle.textContent.trim().startsWith(activeLabel)) toggle.setAttribute("aria-current", "page");
+      });
     }
-
-    syncAccountLink(header).catch(error => console.info("Account link remains on sign-in.", error));
+    syncAccountLink(header);
+    window.dispatchEvent(new CustomEvent("agrolyst:header-ready", { detail: { header } }));
   }
 
-  async function syncAccountLink(header) {
-    const link = header.querySelector("#accountNav");
-    if (!link) return;
-    const sdk = await ensureSupabase();
-    const client = sdk.createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
-
-    async function render(session) {
-      if (session?.user) {
-        link.textContent = "My Account";
-        link.href = "/account/";
-        link.setAttribute("aria-label", "Open your Agrolyst customer account");
-      } else {
-        link.textContent = "Sign in";
-        link.href = "/login/";
-        link.removeAttribute("aria-label");
-      }
-    }
-
-    const { data } = await client.auth.getSession();
-    await render(data?.session);
-    client.auth.onAuthStateChange((_event, session) => { void render(session); });
-  }
-
-  async function load() {
+  async function loadHeader(mount) {
+    if (!mount || mount.dataset.headerLoading === "true") return;
+    mount.dataset.headerLoading = "true";
     try {
-      const response = await fetch(PARTIAL_URL, { credentials: "same-origin" });
+      const response = await fetch(partialUrl, { credentials: "same-origin" });
       if (!response.ok) throw new Error("Shared header could not be loaded.");
-      const html = await response.text();
+      const markup = await response.text();
       const template = document.createElement("template");
-      template.innerHTML = html.trim();
+      template.innerHTML = markup.trim();
       const header = template.content.firstElementChild;
-      if (!header || !header.matches("[data-ag-shared-header]")) throw new Error("Shared header partial is invalid.");
+      if (!header?.matches("[data-ag-shared-header]")) throw new Error("Shared header partial is invalid.");
       mount.replaceWith(header);
       wireHeader(header);
     } catch (error) {
@@ -133,6 +140,9 @@
     }
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", load, { once: true });
-  else void load();
+  function start() {
+    document.querySelectorAll(mountSelector).forEach(mount => loadHeader(mount));
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
+  else start();
 })();
