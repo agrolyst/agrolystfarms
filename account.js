@@ -10,11 +10,11 @@ const AGROLYST_SUPABASE_KEY = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
       const { data } = await client.auth.getUser();
       const name = data && data.user && (data.user.user_metadata?.full_name || data.user.user_metadata?.name);
       link.textContent = name ? "My Account" : "My Account";
-      link.href = "account.html";
+      link.href = "/account/";
       link.setAttribute("aria-label", "Open your Agrolyst account");
     } else {
       link.textContent = "Sign in";
-      link.href = "auth.html";
+      link.href = "/login/";
       link.removeAttribute("aria-label");
     }
   }
