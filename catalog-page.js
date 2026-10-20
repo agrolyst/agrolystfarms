@@ -26,7 +26,7 @@ if (grid) {
     return '<article class="shop-product-card"><div class="shop-product-image">' + photo + (p.is_featured ? '<span class="product-featured">Featured</span>' : '') + '</div>' +
       '<div class="card-copy"><small>' + escapeHtml((p.categories && p.categories.name) || "Farm products") + '</small><h3>' + escapeHtml(p.name) + '</h3>' +
       '<p>' + escapeHtml(p.short_description || p.description || "Contact Agrolyst for specifications and availability.") + '</p><div class="product-price">' + priceLabel + '</div>' +
-      '<div class="product-actions"><a class="btn green" href="index.html#products">Add to cart / order ↗</a><a class="product-chat" href="index.html#contact">Ask about this product →</a></div></div></article>';
+      '<div class="product-actions"><a class="btn green" href="/#products">Add to cart / order ↗</a><a class="product-chat" href="/#contact">Ask about this product →</a></div></div></article>';
   }
   async function load(append) {
     if (state.busy) return;
