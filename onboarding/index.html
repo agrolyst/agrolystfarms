@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en-NG">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123d2b">
+<meta name="google-site-verification" content="YRAlo7bp1IY-KiH1l_5tt1IPbE7m4JaBiPPM3_aM7V8">
+<meta name="description" content="Complete your Agrolyst customer profile and preferences so we can better support your agricultural and business needs.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://agrolystfarms.com/onboarding/">
+<link rel="icon" type="image/jpeg" href="https://agrolystfarms.com/favicon.jpeg">
+<link rel="apple-touch-icon" href="https://agrolystfarms.com/favicon.jpeg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="application-name" content="Agrolyst Integrated Farms and Services">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/auth-experience.css">
+<link rel="stylesheet" href="/onboarding.css">
+<title>Complete Your Profile | Agrolyst Integrated Farms and Services</title>
+</head>
+<body class="onboarding-page">
+<main class="onboarding-layout">
+  <section class="onboarding-story" data-auth-showcase aria-label="Agrolyst farming images">
+    <div class="onboarding-story-slides auth-slides" aria-hidden="true">
+      <div class="auth-slide is-active" style="background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=85')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=1800&q=85')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1800&q=85')"></div>
+      <div class="auth-slide" style="background-image:url('https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=1800&q=85')"></div>
+    </div>
+    <div class="onboarding-story-shade"></div>
+    <div class="onboarding-story-inner">
+      <a class="onboarding-brand" href="/" aria-label="Agrolyst Farms home">
+        <img src="https://agrolystfarms.com/favicon.jpeg" alt="Official Agrolyst Integrated Farms and Services logo">
+        <span><b>AGROLYST</b><small>INTEGRATED FARMS AND SERVICES</small></span>
+      </a>
+      <div class="onboarding-story-copy">
+        <span class="onboarding-eyebrow"><span></span>YOUR JOURNEY STARTS HERE</span>
+        <h1>Let’s grow your next chapter <em>together.</em></h1>
+        <p>Set up your profile once, so Agrolyst can make your farming, product and service experience more relevant to you.</p>
+        <div class="onboarding-benefits">
+          <span><i data-lucide="sprout" aria-hidden="true"></i> Practical farm support</span>
+          <span><i data-lucide="package-check" aria-hidden="true"></i> Relevant products and services</span>
+          <span><i data-lucide="bell-ring" aria-hidden="true"></i> Optional order notifications</span>
+        </div>
+      </div>
+      <div class="onboarding-story-footer"><span>Market to Farm.</span><strong>Empowering Farmers. Growing the Future.</strong></div>
+    </div>
+  </section>
+
+  <section class="onboarding-main">
+    <div class="onboarding-form-card">
+      <div id="onboarding-form-view">
+        <header class="onboarding-card-header">
+          <div class="onboarding-small-label">CUSTOMER SETUP</div>
+          <div class="onboarding-heading-row">
+            <div>
+              <h2 id="stepTitle">Let’s start with you</h2>
+              <p id="stepDescription">Share your basic details so we can recognise you and stay in touch.</p>
+            </div>
+            <div class="onboarding-step-count" aria-live="polite"><b id="stepNumber">01</b><span>/ 03</span></div>
+          </div>
+          <div class="onboarding-progress" role="progressbar" aria-label="Profile setup progress" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="progressBar">
+            <span class="onboarding-progress-fill" id="progressFill"></span>
+          </div>
+        </header>
+
+        <form id="onboardingForm" novalidate>
+          <div class="onboarding-viewport" id="stepViewport">
+            <section class="onboarding-screen is-current" data-step="0" aria-labelledby="basicHeading">
+              <h3 id="basicHeading">Basic information</h3>
+              <p class="onboarding-screen-help">A few essentials to personalise your account.</p>
+              <div class="onboarding-field">
+                <label for="profileFullName">Full name <span>*</span></label>
+                <input id="profileFullName" name="full_name" autocomplete="name" required minlength="2" maxlength="120" placeholder="e.g. Ada Okafor">
+              </div>
+              <div class="onboarding-field">
+                <label for="profilePhone">Phone or WhatsApp number <span>*</span></label>
+                <input id="profilePhone" name="phone" type="tel" autocomplete="tel" required minlength="7" maxlength="30" placeholder="+234 …">
+              </div>
+              <div class="onboarding-field">
+                <label for="profileEmail">Account email</label>
+                <input id="profileEmail" type="email" readonly aria-readonly="true" placeholder="Your signed-in email">
+                <small>This is linked to your Agrolyst account.</small>
+              </div>
+              <div class="onboarding-field">
+                <label for="customerType">I am a… <span>*</span></label>
+                <select id="customerType" name="customer_type" required>
+                  <option value="">Select the option that fits you</option>
+                  <option value="farmer">Farmer / livestock producer</option>
+                  <option value="retailer_distributor">Retailer / distributor</option>
+                  <option value="agribusiness">Agribusiness owner / operator</option>
+                  <option value="institution">Institution / development organisation</option>
+                  <option value="individual">Individual customer</option>
+                  <option value="starting_out">Planning to start a farm</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </section>
+
+            <section class="onboarding-screen" data-step="1" aria-labelledby="farmHeading" aria-hidden="true">
+              <h3 id="farmHeading">Your farm or business</h3>
+              <p class="onboarding-screen-help">Help us understand which products and services are most useful to you.</p>
+              <div class="onboarding-field">
+                <label for="businessName">Farm or business name</label>
+                <input id="businessName" name="business_name" maxlength="160" autocomplete="organization" placeholder="Enter a name (optional)">
+              </div>
+              <div class="onboarding-field">
+                <label for="farmType">Main agricultural interest <span>*</span></label>
+                <select id="farmType" name="farm_type" required>
+                  <option value="">Select your main interest</option>
+                  <option value="egg_poultry">Egg production / layer farming</option>
+                  <option value="meat_poultry">Meat production / broiler farming</option>
+                  <option value="livestock">Other livestock production</option>
+                  <option value="crop_farming">Crop farming / produce</option>
+                  <option value="integrated_farm">Integrated / mixed farming</option>
+                  <option value="feeds_equipment">Poultry feeds and farm equipment</option>
+                  <option value="consultancy">Farm consultancy / technical support</option>
+                  <option value="starting_farm">Planning a farm</option>
+                  <option value="other">Other agricultural interest</option>
+                </select>
+              </div>
+              <div class="onboarding-field">
+                <label for="farmScale">Current business stage</label>
+                <select id="farmScale" name="farm_scale">
+                  <option value="">Select a stage (optional)</option>
+                  <option value="planning">Planning / research</option>
+                  <option value="small">Small / emerging operation</option>
+                  <option value="growing">Growing operation</option>
+                  <option value="established">Established / large operation</option>
+                  <option value="supplier">Supplier / distribution business</option>
+                </select>
+              </div>
+              <div class="onboarding-field">
+                <label>What do you need help with?</label>
+                <p class="onboarding-choice-hint">Choose all that apply. This question is optional.</p>
+                <div class="onboarding-options">
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Egg production"><span><b>Egg production</b><small>Layers, eggs and poultry management</small></span></label>
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Meat production"><span><b>Meat production</b><small>Broilers and poultry meat</small></span></label>
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Feeds and nutrition"><span><b>Feeds & nutrition</b><small>Feed supply and feeding guidance</small></span></label>
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Equipment and installation"><span><b>Equipment</b><small>Cages, systems and installation</small></span></label>
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Consultancy and training"><span><b>Consultancy</b><small>Technical support and training</small></span></label>
+                  <label class="onboarding-option"><input type="checkbox" name="interest" value="Wholesale and partnership"><span><b>Supply & partnerships</b><small>Wholesale and business enquiries</small></span></label>
+                </div>
+              </div>
+            </section>
+
+            <section class="onboarding-screen" data-step="2" aria-labelledby="contactHeading" aria-hidden="true">
+              <h3 id="contactHeading">Your location and preferences</h3>
+              <p class="onboarding-screen-help">Finish with your general business location and how you would like to hear from us.</p>
+              <div class="onboarding-field">
+                <label for="addressLine">Street, office or farm address <span>*</span></label>
+                <input id="addressLine" name="address_line" autocomplete="street-address" required maxlength="240" placeholder="House number, street or farm">
+              </div>
+              <div class="onboarding-two-columns">
+                <div class="onboarding-field">
+                  <label for="city">Town or city <span>*</span></label>
+                  <input id="city" name="city" autocomplete="address-level2" required maxlength="100" placeholder="Town / city">
+                </div>
+                <div class="onboarding-field">
+                  <label for="state">State <span>*</span></label>
+                  <input id="state" name="state" autocomplete="address-level1" required maxlength="100" placeholder="State">
+                </div>
+              </div>
+              <div class="onboarding-field">
+                <label for="country">Country</label>
+                <input id="country" name="country" value="Nigeria" autocomplete="country-name" maxlength="100">
+              </div>
+              <label class="onboarding-consent">
+                <input id="pushConsent" type="checkbox">
+                <span><b>Send me order and service alerts</b><small>Optional. With your permission, supported browsers can show important Agrolyst updates when the website is closed. You can turn this off later.</small></span>
+              </label>
+              <label class="onboarding-consent">
+                <input id="marketingConsent" type="checkbox">
+                <span><b>Occasional farming news and offers</b><small>Optional and separate from service messages. You can change this preference later.</small></span>
+              </label>
+            </section>
+          </div>
+          <div class="onboarding-error" id="onboardingError" role="status" aria-live="polite"></div>
+          <footer class="onboarding-actions">
+            <span class="onboarding-save-hint" id="saveHint">Your details are saved to your account.</span>
+            <button class="onboarding-next" id="nextStep" type="button">Next <i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            <button class="onboarding-next onboarding-finish" id="finishSetup" type="submit" hidden>Finish <i data-lucide="check" aria-hidden="true"></i></button>
+          </footer>
+        </form>
+      </div>
+
+      <section id="onboardingComplete" class="onboarding-success" hidden aria-live="polite">
+        <div class="onboarding-success-icon"><i data-lucide="check-circle-2" aria-hidden="true"></i></div>
+        <div class="onboarding-small-label">ALL SET</div>
+        <h2>Your profile is ready.</h2>
+        <p id="completionMessage">Thank you. Your details have been saved securely to your Agrolyst account.</p>
+        <a href="/" class="onboarding-next onboarding-success-link">Continue to Agrolyst <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+      </section>
+    </div>
+  </section>
+</main>
+<script type="module" src="/onboarding.js"></script>
+<script src="/auth-showcase.js" defer></script>
+<script src="https://unpkg.com/lucide@latest" defer></script>
+</body>
+</html>
