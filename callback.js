@@ -53,10 +53,7 @@ function showError(text) {
     } catch (profileError) {
       console.warn("Could not check onboarding completion; opening profile setup.", profileError);
     }
-    // When Google sign-in was launched from the profile dialog, finish inside the popup.
-    if (window.opener && !window.opener.closed) {
-      window.opener.postMessage({ type: "agrolyst:oauth-success", destination }, "https://agrolystfarms.com");
-      heading.textContent = "You're signed in";
+    heading.textContent = "You're signed in";
       message.textContent = "Your Agrolyst account is ready. You can close this window.";
       status.textContent = "Sign-in completed successfully.";
       status.style.color = "#176d37";
