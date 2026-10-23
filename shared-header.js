@@ -90,6 +90,91 @@
     closeDropdowns(header);
   }
 
+  const googleOneTapClientId = "482368984987-l7qacfrv7vc1q76objbqe1p44qe1r3lf.apps.googleusercontent.com";
+  let googleIdentityPromise;
+
+  function loadGoogleIdentity() {
+    if (window.google?.accounts?.id) return Promise.resolve();
+    if (googleIdentityPromise) return googleIdentityPromise;
+    googleIdentityPromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (existing) {
+        existing.addEventListener("load", () => window.google?.accounts?.id ? resolve() : reject(new Error("Google Identity Services did not initialise.")), { once: true });
+        existing.addEventListener("error", () => reject(new Error("Google Identity Services could not load.")), { once: true });
+        if (window.google?.accounts?.id) resolve();
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => window.google?.accounts?.id ? resolve() : reject(new Error("Google Identity Services did not initialise."));
+      script.onerror = () => reject(new Error("Google Identity Services could not load."));
+      document.head.appendChild(script);
+    });
+    return googleIdentityPromise;
+  }
+
+  async function createGoogleOneTapNonce() {
+    const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(nonce));
+    const hashedNonce = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+    return { nonce, hashedNonce };
+  }
+
+  async function routeOneTapUser(client, user) {
+    let destination = "/onboarding/";
+    try {
+      const { data: profile, error } = await client.from("profiles")
+        .select("onboarding_completed").eq("id", user.id).maybeSingle();
+      if (!error && profile?.onboarding_completed) destination = "/";
+    } catch (error) {
+      console.info("Could not check onboarding completion after Google One Tap.", error);
+    }
+    location.assign(destination);
+  }
+
+  async function initialiseGoogleOneTap() {
+    if (!window.isSecureContext || !window.crypto?.subtle || !googleOneTapClientId) return;
+    try {
+      const sdk = await ensureSupabase();
+      const client = sdk.createClient(supabaseUrl, supabasePublicKey);
+      const { data, error } = await client.auth.getSession();
+      if (error || data?.session?.user) return;
+      await loadGoogleIdentity();
+      // Recheck after loading Google’s library so a concurrent sign-in does not show One Tap.
+      const latest = await client.auth.getSession();
+      if (latest.data?.session?.user) return;
+      const { nonce, hashedNonce } = await createGoogleOneTapNonce();
+      window.google.accounts.id.initialize({
+        client_id: googleOneTapClientId,
+        nonce: hashedNonce,
+        context: "signin",
+        auto_select: false,
+        use_fedcm_for_prompt: true,
+        callback: async response => {
+          if (!response?.credential) return;
+          try {
+            const { data: authData, error: authError } = await client.auth.signInWithIdToken({
+              provider: "google",
+              token: response.credential,
+              nonce
+            });
+            if (authError) throw authError;
+            if (!authData?.user) throw new Error("Google did not return an authenticated user.");
+            await routeOneTapUser(client, authData.user);
+          } catch (error) {
+            console.error("Google One Tap sign-in failed.", error);
+          }
+        }
+      });
+      window.google.accounts.id.prompt();
+    } catch (error) {
+      // One Tap is optional; normal website navigation and the existing login flow remain available.
+      console.info("Google One Tap is currently unavailable.", error);
+    }
+  }
+
   async function syncAccountLink(header) {
     const link = header.querySelector("#accountNav");
     if (!link) return;
@@ -176,6 +261,7 @@
     }
     preserveTranslatedNavigation(header);
     syncAccountLink(header);
+    initialiseGoogleOneTap();
     window.dispatchEvent(new CustomEvent("agrolyst:header-ready", { detail: { header } }));
   }
 
