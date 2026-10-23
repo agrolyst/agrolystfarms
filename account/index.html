@@ -131,7 +131,7 @@
   if(!profile||!profile.onboarding_completed){location.replace("/onboarding/");return}
   fillProfile(profile);
   const [orderResult,notificationResult,productResult]=await Promise.all([
-   client.from("orders").select("id,order_number,total,status,fulfillment,created_at,order_items(id,product_name_snapshot,quantity,unit_label_snapshot)").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
+   client.from("orders").select("id,order_number,total,status,fulfillment,payment_state,created_at,order_items(id,product_name_snapshot,quantity,unit_label_snapshot)").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
    client.from("notifications").select("id,title,body,url,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
    client.from("products").select("id,name,slug,short_description,base_price,image_url,currency,is_featured").eq("status","active").order("is_featured",{ascending:false}).order("created_at",{ascending:false}).limit(6)
   ]);
