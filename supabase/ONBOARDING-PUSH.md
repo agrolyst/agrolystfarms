@@ -8,41 +8,23 @@
 - supabase/migrations/20261020110000_agrolyst_onboarding_webpush.sql: profile fields, RLS-protected subscriptions and notification history; database triggers enqueue notifications when an order is created or its status changes.
 - supabase/functions/push-notification/index.ts: sender for Supabase Database Webhook INSERT events on public.notifications.
 
-## Background notification setup required
+## Background notification delivery
 
-The client subscription flow and database tables are prepared, but actual delivery requires one-time secrets plus a database webhook. A browser cannot send a push notification by itself once the page is closed; the server must sign and send a push message. Users also must consent to browser notifications. See the MDN Push API guide: https://developer.mozilla.org/en-US/docs/Web/API/Push_API
+The main Supabase project has been configured for Web Push delivery:
+- VAPID private/public JWKs and the webhook shared secret are generated and stored in Supabase Vault, not in website code or GitHub.
+- The `push-notification` Edge Function reads its configuration through a service-role-only RPC.
+- Database triggers call the Edge Function when a notification is created and retry pending/failed notifications when a user registers or refreshes an active push subscription.
+- The browser's public VAPID key is in `account/index.html`; deploy the latest GitHub commit to Hostinger so browsers subscribe with the matching key.
 
-### 1. Add Edge Function secrets
+### Finish browser-side activation
 
-A private file named Agrolyst-Push-Secrets.txt is provided separately. Keep it private and do not commit it to GitHub. In Supabase Dashboard → Project → Edge Functions → Secrets, add these values from that file:
+1. Deploy the latest website commit to HTTPS.
+2. Each user must visit `/account/`, open Preferences, enable desktop/browser notifications, and approve the browser permission prompt.
+3. Keep the browser installed/available and allow notifications in operating-system settings. The website itself does not need to be open for supported browser/OS combinations.
+4. Existing subscriptions created with the previous public key are automatically replaced when that user next enables notifications on the updated site. Pending account announcements are retried after the new subscription is saved.
+5. Check `public.notifications.push_status`: `sent` means the push provider accepted delivery; `no_subscribers` means that user has not enabled a subscription yet; `failed` means inspect the Edge Function logs and `push_error`.
 
-- VAPID_PRIVATE_JWK
-- VAPID_PUBLIC_JWK
-- PUSH_WEBHOOK_SECRET
-
-Supabase normally provides SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to the Edge Function runtime. If your project runtime does not expose SUPABASE_SERVICE_ROLE_KEY, add the current service-role/secret key as an Edge Function secret with that name. Never put that key in website code.
-
-### 2. Configure the notification database webhook
-
-In Supabase Dashboard → Database → Webhooks, create a webhook:
-- Table: public.notifications
-- Event: INSERT
-- Method: POST
-- Target Edge Function: push-notification
-- Header Content-Type: application/json
-- Header x-agrolyst-push-secret: the PUSH_WEBHOOK_SECRET value from the private file
-
-The function uses verify_jwt=false because Database Webhooks use their own HTTP request; it validates the shared secret header before doing any work. Do not omit that header.
-
-### 3. Test delivery
-
-1. Deploy the latest website to HTTPS.
-2. Sign in or create an account and complete onboarding at `/onboarding/`.
-3. Tick the optional order/service notification consent and allow notifications in the browser prompt.
-4. In Supabase, create a test public.notifications row for that same user_id and confirm its push_status changes to sent. Use a harmless test title/body and url='/account/'.
-5. Confirm a browser/OS notification appears with the website closed or in the background.
-
-Order-created and order-status database triggers create notification rows only for orders linked to a signed-in user. Guest orders cannot be sent to a customer account that does not exist. A status update sends only if the application inserts the corresponding order_status_events row.
+No separate private secrets file or manually configured Database Webhook is required for the current setup. Never expose the private VAPID key or webhook secret in client-side code.
 
 ## Notes
 
