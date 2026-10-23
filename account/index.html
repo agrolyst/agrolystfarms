@@ -213,6 +213,46 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  $("closeNotificationModal").addEventListener("click",closeNotificationModal);$("closeNotificationModalBottom").addEventListener("click",closeNotificationModal);
  $("notificationModal").addEventListener("click",event=>{if(event.target===$("notificationModal"))closeNotificationModal()});
  document.addEventListener("keydown",event=>{if(event.key==="Escape")closeNotificationModal()});
+ function renderEmailVerification(){
+  const verified=Boolean(currentUser?.email_confirmed_at);
+  const state=$("emailVerificationState"),link=$("verifyEmailLink");
+  if(verified){state.innerHTML='<span class="email-verified"><i data-lucide="badge-check"></i> Verified</span>';link.hidden=true}
+  else{state.textContent="Email not verified";link.hidden=false}
+  if(window.lucide)window.lucide.createIcons();
+ }
+ const emailVerifyModal=$("emailVerifyModal"),emailVerifyFeedback=$("emailVerifyFeedback"),emailVerifyInstructions=$("emailVerifyInstructions"),emailVerifyCodeArea=$("emailVerifyCodeArea"),emailVerifySend=$("emailVerifySend"),emailVerifyConfirm=$("emailVerifyConfirm"),emailVerifyResend=$("emailVerifyResend");
+ function closeEmailVerify(){emailVerifyModal.classList.remove("is-open");emailVerifyModal.setAttribute("aria-hidden","true")}
+ function showEmailVerify(){emailVerifyModal.classList.add("is-open");emailVerifyModal.setAttribute("aria-hidden","false");emailVerifyFeedback.textContent="";emailVerifyFeedback.classList.remove("error");emailVerifyCodeArea.hidden=true;emailVerifyConfirm.hidden=true;emailVerifyResend.hidden=true;emailVerifySend.hidden=false;emailVerifySend.disabled=false;emailVerifySend.textContent="Send code";emailVerifyInstructions.textContent="We’ll send a one-time verification code to "+(currentUser?.email||"your email address")+". Make sure you can access this inbox."}
+ async function sendEmailVerificationCode(){
+  if(!currentUser?.email){emailVerifyFeedback.textContent="There is no email address on this account.";emailVerifyFeedback.classList.add("error");return}
+  emailVerifySend.disabled=true;emailVerifyResend.disabled=true;emailVerifyFeedback.classList.remove("error");emailVerifyFeedback.textContent="Sending verification code…";
+  try{
+   const {data,error}=await client.auth.resend({type:"signup",email:currentUser.email,options:{emailRedirectTo:location.origin+"/account/#profile"}});
+   if(error)throw error;
+   emailVerifyFeedback.textContent="If this email is eligible for verification, a code has been sent. Check your inbox and spam folder.";
+   emailVerifyCodeArea.hidden=false;emailVerifyConfirm.hidden=false;emailVerifyResend.hidden=false;emailVerifySend.hidden=true;
+   $("emailVerifyCode").focus();
+  }catch(error){emailVerifyFeedback.textContent=error.message||"Could not send the verification code. Please try again.";emailVerifyFeedback.classList.add("error")}
+  finally{emailVerifySend.disabled=false;emailVerifyResend.disabled=false}
+ }
+ $("verifyEmailLink").addEventListener("click",()=>{showEmailVerify();if(window.lucide)window.lucide.createIcons()});
+ $("closeEmailVerify").addEventListener("click",closeEmailVerify);
+ emailVerifyModal.addEventListener("click",event=>{if(event.target===emailVerifyModal)closeEmailVerify()});
+ emailVerifySend.addEventListener("click",sendEmailVerificationCode);emailVerifyResend.addEventListener("click",sendEmailVerificationCode);
+ emailVerifyConfirm.addEventListener("click",async()=>{
+  const token=$("emailVerifyCode").value.trim();
+  if(!/^\\d{6}$/.test(token)){emailVerifyFeedback.textContent="Enter the 6-digit code from your email.";emailVerifyFeedback.classList.add("error");return}
+  emailVerifyConfirm.disabled=true;emailVerifyFeedback.classList.remove("error");emailVerifyFeedback.textContent="Checking code…";
+  try{
+   const {data,error}=await client.auth.verifyOtp({email:currentUser.email,token,type:"signup"});
+   if(error)throw error;
+   if(!data.user?.email_confirmed_at)throw new Error("The email is not confirmed yet. Please try the code again.");
+   currentUser=data.user;renderEmailVerification();emailVerifyFeedback.textContent="Your email has been verified successfully.";emailVerifyInstructions.textContent="Your email address is now verified.";emailVerifyCodeArea.hidden=true;emailVerifyConfirm.hidden=true;emailVerifyResend.hidden=true;emailVerifySend.hidden=true;
+   setTimeout(closeEmailVerify,1100);
+  }catch(error){emailVerifyFeedback.textContent=error.message||"That code could not be verified. Request a new code and try again.";emailVerifyFeedback.classList.add("error")}
+  finally{emailVerifyConfirm.disabled=false}
+ });
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&emailVerifyModal.classList.contains("is-open"))closeEmailVerify()});
  function fillProfile(profile){
   currentProfile=profile;
   const name=profile.full_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||currentUser.email?.split("@")[0]||"Customer";
@@ -227,6 +267,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   const {data:{user},error}=await client.auth.getUser();
   if(error||!user){location.replace("/login/?next=%2Faccount%2F");return}
   currentUser=user;
+  renderEmailVerification();
   let {data:profile,error:profileError}=await client.from("profiles").select("id,full_name,phone,created_at,updated_at,customer_type,business_name,farm_type,farm_scale,interests,address_line,city,state,country,onboarding_completed,push_notifications_enabled,marketing_opt_in").eq("id",user.id).maybeSingle();
   if(profileError){$("miniEmail").textContent="Could not load profile";setFeedback("profileFeedback","Unable to load profile details. Please refresh and try again.",true);console.error(profileError);return}
   if(!profile||!profile.onboarding_completed){location.replace("/onboarding/");return}
