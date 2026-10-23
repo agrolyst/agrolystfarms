@@ -81,7 +81,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
     <div class="dash-field"><label for="profileCity">City / town</label><input id="profileCity" name="city" autocomplete="address-level2" maxlength="100"></div>
     <div class="dash-field"><label for="profileState">State</label><input id="profileState" name="state" autocomplete="address-level1" maxlength="100"></div>
     <div class="dash-field"><label for="profileCountry">Country</label><input id="profileCountry" name="country" autocomplete="country-name" maxlength="100"></div>
-    <div class="dash-field"><label>Email address</label><input id="profileEmail" type="email" readonly disabled></div>
+    <div class="dash-field"><label for="profileEmail">Email address</label><input id="profileEmail" type="email" readonly disabled><div class="email-verify-row" style="margin-top:9px"><span id="emailVerificationState" class="dash-status-line">Checking verification status…</span><button class="email-verify-link" id="verifyEmailLink" type="button" hidden>Verify</button></div></div>
    </div><div class="dash-form-actions"><button class="dash-btn" id="saveProfile" type="submit"><i data-lucide="save"></i> Save profile</button><span class="dash-feedback" id="profileFeedback" role="status" aria-live="polite"></span></div></form></section></section>
    <section class="dash-view" id="view-farm"><div class="dash-section-head"><div><h2>Farm & business details</h2><p>Help us tailor products, support and services to your operation.</p></div></div><section class="dash-panel"><form id="farmForm"><div class="dash-form-grid">
     <div class="dash-field"><label for="customerType">I am a</label><select id="customerType"><option value="">Select customer type</option><option value="farmer">Farmer</option><option value="poultry farmer">Poultry farmer</option><option value="agribusiness">Agribusiness owner</option><option value="retailer">Retailer / distributor</option><option value="student">Student / learner</option><option value="service provider">Service provider</option><option value="other">Other</option></select></div>
@@ -107,7 +107,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
 (() => {
  const SUPABASE_URL="https://rcrgooivgssuerrgnuqw.supabase.co";
  const SUPABASE_KEY="sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
- const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+ const client=window.__agrolystSupabaseClient||(window.__agrolystSupabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY));
  const VAPID_PUBLIC_KEY="BOG8kmRt4MoZBUad9dA9i4sZi5br1AtRo6mfuRObRhDG4ctJyB4t57e2EoDNGgoOiLDyUP2LUlHbeIQqN5MoT9M";
  let currentUser=null,currentProfile=null,orders=[],notifications=[];
  const $=id=>document.getElementById(id);
