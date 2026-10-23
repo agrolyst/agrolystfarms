@@ -53,6 +53,20 @@ function showError(text) {
     } catch (profileError) {
       console.warn("Could not check onboarding completion; opening profile setup.", profileError);
     }
+    // When Google sign-in was launched from the profile dialog, finish inside the popup.
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({ type: "agrolyst:oauth-success" }, "https://agrolystfarms.com");
+      heading.textContent = "You're signed in";
+      message.textContent = "Your Agrolyst account is ready. You can close this window.";
+      status.textContent = "Sign-in completed successfully.";
+      status.style.color = "#176d37";
+      spinner.hidden = true;
+      continueLink.hidden = false;
+      continueLink.href = destination;
+      continueLink.textContent = "Continue to Agrolyst Farms";
+      window.setTimeout(() => window.close(), 650);
+      return;
+    }
     heading.textContent = "You're signed in";
     message.textContent = "Your Agrolyst Farms account has been verified successfully.";
     status.textContent = destination === "/onboarding/" ? "Let's complete your customer profile…" : "Taking you to the website…";
