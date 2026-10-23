@@ -225,6 +225,10 @@
       if (event.origin !== location.origin || event.data?.type !== "agrolyst:oauth-success") return;
       client?.auth.getSession().then(({ data }) => {
         render(data?.session?.user || null);
+        if (event.data.destination === "/onboarding/") {
+          location.assign("/onboarding/");
+          return;
+        }
         if (data?.session?.user) showStatus("Google sign-in successful. You are now signed in.", false);
       }).catch(error => console.warn("Could not refresh the signed-in profile.", error));
     });
