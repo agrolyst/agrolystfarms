@@ -190,7 +190,7 @@
     if (!link) return;
     try {
       const sdk = await ensureSupabase();
-      const client = sdk.createClient(supabaseUrl, supabasePublicKey);
+      const client = getSharedSupabaseClient(sdk);
       const render = session => {
         const label = link.querySelector(".ag-nav-label");
         const icon = link.querySelector("svg");
