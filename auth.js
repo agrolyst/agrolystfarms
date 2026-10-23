@@ -63,11 +63,56 @@ form.addEventListener("submit", async e => {
     }
   } catch (error) { setStatus(error.message || "Authentication failed."); }
 });
-document.getElementById("googleBtn").addEventListener("click", async () => {
-  setStatus("Connecting to Google…", false);
-  const { error } = await client.auth.signInWithOAuth({provider:"google", options:{redirectTo:"https://agrolystfarms.com/callback/", queryParams:{prompt:"select_account"}}});
-  if (error) setStatus(error.message || "Google sign-in failed.");
-});
+// Google Identity Services uses its official popup UX; the returned ID token is exchanged with Supabase.
+const googleClientId = "482368984987-l7qacfrv7vc1q76objbqe1p44qe1r3lf.apps.googleusercontent.com";
+const googleButtonHost = document.getElementById("googleBtn");
+if (googleButtonHost) {
+  if (window.google?.accounts?.id) {
+    initialiseGooglePopup();
+  } else {
+    window.addEventListener("load", initialiseGooglePopup, { once: true });
+  }
+}
+function initialiseGooglePopup() {
+  if (!googleButtonHost || !window.google?.accounts?.id) {
+    setStatus("Google sign-in could not load. Please refresh the page or use email and password.");
+    return;
+  }
+  window.google.accounts.id.initialize({
+    client_id: googleClientId,
+    ux_mode: "popup",
+    auto_select: false,
+    cancel_on_tap_outside: true,
+    callback: async response => {
+      if (!response || !response.credential) {
+        setStatus("Google did not return a sign-in credential. Please try again.");
+        return;
+      }
+      setStatus("Verifying your Google account…", false);
+      try {
+        const { data, error } = await client.auth.signInWithIdToken({
+          provider: "google",
+          token: response.credential
+        });
+        if (error) throw error;
+        setStatus("Signed in. Checking your profile…", false);
+        await routeSignedInUser(data.user);
+      } catch (error) {
+        setStatus(error.message || "Google sign-in failed.");
+      }
+    }
+  });
+  googleButtonHost.replaceChildren();
+  window.google.accounts.id.renderButton(googleButtonHost, {
+    type: "standard",
+    theme: "outline",
+    size: "large",
+    text: "continue_with",
+    shape: "rectangular",
+    width: Math.min(380, Math.max(240, googleButtonHost.clientWidth || 320)),
+    logo_alignment: "left"
+  });
+}
 document.getElementById("resetLink").addEventListener("click", async e => {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
