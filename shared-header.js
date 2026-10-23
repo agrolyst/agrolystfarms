@@ -19,6 +19,8 @@
     const root = document.documentElement;
     root.dataset.agTheme = resolvedMode === "dark" ? "dark" : "light";
     root.dataset.agAccent = ["forest", "blue", "purple", "harvest"].includes(settings.theme) ? settings.theme : "forest";
+    const customColor = /^#[0-9a-fA-F]{6}$/.test(settings.customColor || "") ? settings.customColor : "#26784a";
+    root.style.setProperty("--ag-custom-color", customColor);
     root.dataset.agHeaderLayout = ["top", "left", "right", "bottom"].includes(settings.layout) ? settings.layout : "top";
   }
 
