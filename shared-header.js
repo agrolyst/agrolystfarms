@@ -65,6 +65,12 @@
     });
   }
 
+  function getSharedSupabaseClient(sdk) {
+    if (window.__agrolystSupabaseClient) return window.__agrolystSupabaseClient;
+    window.__agrolystSupabaseClient = sdk.createClient(supabaseUrl, supabasePublicKey);
+    return window.__agrolystSupabaseClient;
+  }
+
   async function ensureSupabase() {
     if (window.supabase?.createClient) return window.supabase;
     return new Promise((resolve, reject) => {
@@ -142,7 +148,7 @@
     if (!window.isSecureContext || !window.crypto?.subtle || !googleOneTapClientId) return;
     try {
       const sdk = await ensureSupabase();
-      const client = sdk.createClient(supabaseUrl, supabasePublicKey);
+      const client = getSharedSupabaseClient(sdk);
       const { data, error } = await client.auth.getSession();
       if (error || data?.session?.user) return;
       await loadGoogleIdentity();
