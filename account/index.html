@@ -241,7 +241,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  emailVerifySend.addEventListener("click",sendEmailVerificationCode);emailVerifyResend.addEventListener("click",sendEmailVerificationCode);
  emailVerifyConfirm.addEventListener("click",async()=>{
   const token=$("emailVerifyCode").value.trim();
-  if(!/^\\d{6}$/.test(token)){emailVerifyFeedback.textContent="Enter the 6-digit code from your email.";emailVerifyFeedback.classList.add("error");return}
+  if(!/^\d{6}$/.test(token)){emailVerifyFeedback.textContent="Enter the 6-digit code from your email.";emailVerifyFeedback.classList.add("error");return}
   emailVerifyConfirm.disabled=true;emailVerifyFeedback.classList.remove("error");emailVerifyFeedback.textContent="Checking code…";
   try{
    const {data,error}=await client.auth.verifyOtp({email:currentUser.email,token,type:"signup"});
