@@ -55,7 +55,7 @@ function showError(text) {
     }
     // When Google sign-in was launched from the profile dialog, finish inside the popup.
     if (window.opener && !window.opener.closed) {
-      window.opener.postMessage({ type: "agrolyst:oauth-success" }, "https://agrolystfarms.com");
+      window.opener.postMessage({ type: "agrolyst:oauth-success", destination }, "https://agrolystfarms.com");
       heading.textContent = "You're signed in";
       message.textContent = "Your Agrolyst account is ready. You can close this window.";
       status.textContent = "Sign-in completed successfully.";
