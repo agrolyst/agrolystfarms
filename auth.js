@@ -73,47 +73,66 @@ if (googleButtonHost) {
     window.addEventListener("load", initialiseGooglePopup, { once: true });
   }
 }
-function initialiseGooglePopup() {
+async function createGooglePopupNonce() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const nonce = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(nonce));
+  const hashedNonce = Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  return { nonce, hashedNonce };
+}
+async function initialiseGooglePopup() {
   if (!googleButtonHost || !window.google?.accounts?.id) {
     setStatus("Google sign-in could not load. Please refresh the page or use email and password.");
     return;
   }
-  window.google.accounts.id.initialize({
-    client_id: googleClientId,
-    ux_mode: "popup",
-    auto_select: false,
-    use_fedcm_for_button: true,
-    button_auto_select: false,
-    cancel_on_tap_outside: true,
-    callback: async response => {
-      if (!response || !response.credential) {
-        setStatus("Google did not return a sign-in credential. Please try again.");
-        return;
+  if (!window.isSecureContext || !window.crypto?.subtle) {
+    setStatus("Secure Google sign-in is unavailable in this browser. Please use email and password or try a supported browser.");
+    return;
+  }
+  try {
+    const { nonce, hashedNonce } = await createGooglePopupNonce();
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      nonce: hashedNonce,
+      ux_mode: "popup",
+      auto_select: false,
+      use_fedcm_for_button: true,
+      button_auto_select: false,
+      cancel_on_tap_outside: true,
+      callback: async response => {
+        if (!response || !response.credential) {
+          setStatus("Google did not return a sign-in credential. Please try again.");
+          return;
+        }
+        setStatus("Verifying your Google account…", false);
+        try {
+          const { data, error } = await client.auth.signInWithIdToken({
+            provider: "google",
+            token: response.credential,
+            nonce
+          });
+          if (error) throw error;
+          setStatus("Signed in. Checking your profile…", false);
+          await routeSignedInUser(data.user);
+        } catch (error) {
+          setStatus(error.message || "Google sign-in failed.");
+        }
       }
-      setStatus("Verifying your Google account…", false);
-      try {
-        const { data, error } = await client.auth.signInWithIdToken({
-          provider: "google",
-          token: response.credential
-        });
-        if (error) throw error;
-        setStatus("Signed in. Checking your profile…", false);
-        await routeSignedInUser(data.user);
-      } catch (error) {
-        setStatus(error.message || "Google sign-in failed.");
-      }
-    }
-  });
-  googleButtonHost.replaceChildren();
-  window.google.accounts.id.renderButton(googleButtonHost, {
-    type: "standard",
-    theme: "outline",
-    size: "large",
-    text: "continue_with",
-    shape: "rectangular",
-    width: Math.min(380, Math.max(240, googleButtonHost.clientWidth || 320)),
-    logo_alignment: "left"
-  });
+    });
+    googleButtonHost.replaceChildren();
+    window.google.accounts.id.renderButton(googleButtonHost, {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "continue_with",
+      shape: "rectangular",
+      width: Math.min(380, Math.max(240, googleButtonHost.clientWidth || 320)),
+      logo_alignment: "left"
+    });
+  } catch (error) {
+    console.error("Could not initialise secure Google popup sign-in.", error);
+    setStatus("Google sign-in could not be initialised. Please refresh the page and try again.");
+  }
 }
 document.getElementById("resetLink").addEventListener("click", async e => {
   e.preventDefault();
