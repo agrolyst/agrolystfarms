@@ -7,6 +7,7 @@ const message = document.getElementById("message");
 const status = document.getElementById("status");
 const spinner = document.getElementById("spinner");
 const continueLink = document.getElementById("continueLink");
+
 function showError(text) {
   heading.textContent = "Sign-in could not be completed";
   message.textContent = "Please return to sign in and try again.";
@@ -17,12 +18,15 @@ function showError(text) {
   continueLink.href = "/login/";
   continueLink.textContent = "Back to login";
 }
+
 (async function completeAuth() {
   try {
     const params = new URLSearchParams(location.search);
     const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
-    const authError = params.get("error_description") || params.get("error") || hash.get("error_description") || hash.get("error");
+    const authError = params.get("error_description") || params.get("error") ||
+      hash.get("error_description") || hash.get("error");
     if (authError) throw new Error(authError);
+
     // PKCE OAuth / email confirmation links may include a one-time code.
     const code = params.get("code");
     if (code) {
@@ -37,42 +41,41 @@ function showError(text) {
     } else if (hash.get("error")) {
       throw new Error(hash.get("error_description") || hash.get("error"));
     }
+
     const { data, error } = await client.auth.getSession();
     if (error) throw error;
     if (!data.session) {
       throw new Error("No active session was returned. The link may have expired; please sign in again.");
     }
+
     // Keep the URL clean so one-time auth codes are not left in the address bar.
     history.replaceState({}, document.title, location.pathname);
     const user = data.session.user;
     let destination = "/onboarding/";
+
     try {
       const { data: profile, error: profileError } = await client.from("profiles")
-        .select("onboarding_completed").eq("id", user.id).maybeSingle();
-      if (!profileError && profile && profile.onboarding_completed) destination = "/";
+        .select("onboarding_completed")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!profileError && profile?.onboarding_completed) destination = "/";
     } catch (profileError) {
       console.warn("Could not check onboarding completion; opening profile setup.", profileError);
     }
-    heading.textContent = "You're signed in";
-      message.textContent = "Your Agrolyst account is ready. You can close this window.";
-      status.textContent = "Sign-in completed successfully.";
-      status.style.color = "#176d37";
-      spinner.hidden = true;
-      continueLink.hidden = false;
-      continueLink.href = destination;
-      continueLink.textContent = "Continue to Agrolyst Farms";
-      window.setTimeout(() => window.close(), 650);
-      return;
-    }
+
     heading.textContent = "You're signed in";
     message.textContent = "Your Agrolyst Farms account has been verified successfully.";
-    status.textContent = destination === "/onboarding/" ? "Let's complete your customer profile…" : "Taking you to the website…";
+    status.textContent = destination === "/onboarding/"
+      ? "Let's complete your customer profile…"
+      : "Taking you to the website…";
     status.style.color = "#176d37";
     spinner.hidden = true;
     continueLink.hidden = false;
     continueLink.href = destination;
-    continueLink.textContent = destination === "/onboarding/" ? "Complete your profile" : "Continue to Agrolyst Farms";
-    window.setTimeout(() => { location.replace(destination); }, 1200);
+    continueLink.textContent = destination === "/onboarding/"
+      ? "Complete your profile"
+      : "Continue to Agrolyst Farms";
+    window.setTimeout(() => location.replace(destination), 1200);
   } catch (error) {
     showError(error && error.message ? error.message : "Authentication failed. Please try again.");
   }
