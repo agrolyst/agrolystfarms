@@ -229,3 +229,20 @@ a.btn:hover .site-action-icon,.nav-cta:hover .site-action-icon,.plain:hover .sit
 .shop-product-card .card-copy>.site-card-icon{width:42px;height:42px;flex-basis:42px;border-radius:13px;margin:0 0 14px}
 
 .values>div>span{display:block}
+
+/* Global appearance preference support */
+html[data-ag-theme="dark"]{color-scheme:dark}
+html[data-ag-theme="dark"] body{background:#101812;color:#e3ece5}
+html[data-ag-theme="dark"] main,html[data-ag-theme="dark"] section,html[data-ag-theme="dark"] article,html[data-ag-theme="dark"] aside{scroll-margin-top:90px}
+html[data-ag-theme="dark"] .container,html[data-ag-theme="dark"] .content,html[data-ag-theme="dark"] .card,html[data-ag-theme="dark"] .panel,html[data-ag-theme="dark"] .product-card,html[data-ag-theme="dark"] .form-card,html[data-ag-theme="dark"] .faq-item,html[data-ag-theme="dark"] .feature-card,html[data-ag-theme="dark"] .service-card{color:#e3ece5}
+html[data-ag-theme="dark"] input,html[data-ag-theme="dark"] textarea,html[data-ag-theme="dark"] select{background:#17221a;color:#e3ece5;border-color:#3a4b3c}
+html[data-ag-theme="dark"] .topbar{background:#091c12;color:#d6e6da}
+html[data-ag-theme="dark"] header:not(.ag-shared-header),html[data-ag-theme="dark"] footer,html[data-ag-theme="dark"] .site-footer{background:#17221a;color:#dce9df;border-color:#304033}
+html[data-ag-theme="dark"] .nav nav a,html[data-ag-theme="dark"] footer a,html[data-ag-theme="dark"] .site-footer a{color:#c7e7ce}
+html[data-ag-theme="dark"] .hero,html[data-ag-theme="dark"] .cta,html[data-ag-theme="dark"] .dark-section{color:#f2f7f3}
+html[data-ag-theme="dark"] .section-light,html[data-ag-theme="dark"] .bg-light,html[data-ag-theme="dark"] .soft-bg{background:#151f18!important;color:#e3ece5}
+html[data-ag-theme="dark"] .white-card,html[data-ag-theme="dark"] .card-white{background:#19241c!important;color:#e3ece5;border-color:#304033}
+html[data-ag-theme="dark"] p,html[data-ag-theme="dark"] li,html[data-ag-theme="dark"] label{color:inherit}
+html[data-ag-accent="blue"]{--g:#163c69;--g2:#245da8;--gold:#7eb7f0;--ivory:#f2f6fc;--line:#d8e3f0}
+html[data-ag-accent="purple"]{--g:#4d286e;--g2:#7040a0;--gold:#c5a0ed;--ivory:#f8f3fc;--line:#e4d9ef}
+html[data-ag-accent="harvest"]{--g:#6b4b13;--g2:#9a6a12;--gold:#e5c15c;--ivory:#fcf8ed;--line:#ece2c8}
