@@ -239,6 +239,8 @@
   }
 
   function wireHeader(header) {
+    // Apply the saved icon/text preference as soon as the shared header is mounted.
+    applyNavigationDisplay(header);
     const nav = header.querySelector(".ag-shared-nav");
     const menuToggle = header.querySelector(".ag-shared-menu-toggle");
 
