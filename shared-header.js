@@ -3,6 +3,35 @@
   const partialUrl = "/partials/site-header.html";
   const supabaseUrl = "https://rcrgooivgssuerrgnuqw.supabase.co";
   const supabasePublicKey = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
+  const appearanceStorageKey = "agrolyst-appearance-v1";
+  const defaultAppearance = { mode: "light", theme: "forest", layout: "top" };
+
+  function applySavedAppearance() {
+    let settings = { ...defaultAppearance };
+    try {
+      settings = { ...settings, ...JSON.parse(localStorage.getItem(appearanceStorageKey) || "{}") };
+    } catch (error) {
+      console.info("Using default Agrolyst appearance settings.");
+    }
+    const resolvedMode = settings.mode === "system"
+      ? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      : settings.mode;
+    const root = document.documentElement;
+    root.dataset.agTheme = resolvedMode === "dark" ? "dark" : "light";
+    root.dataset.agAccent = ["forest", "blue", "purple", "harvest"].includes(settings.theme) ? settings.theme : "forest";
+    root.dataset.agHeaderLayout = ["top", "left", "right", "bottom"].includes(settings.layout) ? settings.layout : "top";
+  }
+
+  applySavedAppearance();
+  window.addEventListener("storage", event => {
+    if (event.key === appearanceStorageKey) applySavedAppearance();
+  });
+  window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
+    try {
+      const settings = JSON.parse(localStorage.getItem(appearanceStorageKey) || "{}");
+      if (settings.mode === "system") applySavedAppearance();
+    } catch (error) {}
+  });
 
   function activeTranslateParams() {
     if (!location.hostname.endsWith(".translate.goog")) return null;
