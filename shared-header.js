@@ -186,12 +186,16 @@
       const sdk = await ensureSupabase();
       const client = sdk.createClient(supabaseUrl, supabasePublicKey);
       const render = session => {
+        const label = link.querySelector(".ag-nav-label");
+        const icon = link.querySelector("svg");
         if (session?.user) {
-          link.textContent = "My Account";
+          if (label) label.textContent = "My Account"; else link.textContent = "My Account";
+          if (icon) icon.innerHTML = '<circle cx="12" cy="8" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>';
           link.href = "/account/";
           link.setAttribute("aria-label", "Open your Agrolyst customer account");
         } else {
-          link.textContent = "Sign in";
+          if (label) label.textContent = "Sign in"; else link.textContent = "Sign in";
+          if (icon) icon.innerHTML = '<path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/>';
           link.href = "/login/";
           link.removeAttribute("aria-label");
         }
