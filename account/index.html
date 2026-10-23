@@ -34,7 +34,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
 @media(max-width:700px){.account-dashboard{padding:20px 0 45px}.dash-wrap{width:min(100% - 26px,1240px)}.dash-topline{align-items:flex-start;flex-direction:column}.dash-hero{align-items:flex-start;flex-direction:column;padding:25px 21px}.dash-hero-action{white-space:normal}.dash-stat-grid{gap:9px;margin:13px 0 17px}.dash-stat{padding:13px;gap:10px}.dash-stat-icon{width:36px;height:36px;border-radius:10px}.dash-stat-icon svg{width:18px;height:18px}.dash-stat small{font-size:.66rem}.dash-stat strong{font-size:1.2rem}.dash-layout{grid-template-columns:1fr;gap:14px}.dash-sidebar{position:static;padding:9px;overflow:hidden}.dash-sidebar-label,.dash-side-note{display:none}.dash-nav{display:flex;overflow-x:auto;gap:5px;scrollbar-width:thin;padding-bottom:2px}.dash-nav button{width:auto;white-space:nowrap;padding:10px;font-size:.73rem;flex:none}.dash-nav button svg{width:16px;height:16px}.dash-nav .nav-count{display:none}.dash-panel{padding:17px}.dash-section-head h2{font-size:1.18rem}.dash-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-product img{height:112px}.dash-profile-details{gap:12px}.dash-form-grid{grid-template-columns:1fr}.dash-field.full{grid-column:auto}.dash-top-actions{width:100%;flex-wrap:wrap}.dash-order{grid-template-columns:minmax(0,1fr) auto}.dash-order-number{font-size:.75rem}}
 @media(max-width:390px){.dash-stat-grid{grid-template-columns:1fr 1fr}.dash-stat{align-items:flex-start;flex-direction:column}.dash-product-grid{grid-template-columns:1fr 1fr}.dash-order-right{max-width:115px}.dash-order-total{font-size:.78rem}}
 @media(prefers-reduced-motion:reduce){.dash-view{animation:none!important;transition:none!important}}
-</style>
+ .email-verify-fieldbox{border:1px solid #dce5d9;border-radius:10px;background:#fcfdfb;overflow:hidden}.email-verify-fieldbox input{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}.email-verify-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:36px;padding:5px 12px 9px}.email-verify-status-row .dash-status-line{margin:0}.email-verify-status-row .email-verified{font-size:.76rem}html[data-ag-theme="dark"] .email-verify-fieldbox{background:#111a14;border-color:#3b5040}</style>
 </head>
 <body><div data-shared-header-mount></div>
 <main class="account-dashboard">
@@ -81,7 +81,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
     <div class="dash-field"><label for="profileCity">City / town</label><input id="profileCity" name="city" autocomplete="address-level2" maxlength="100"></div>
     <div class="dash-field"><label for="profileState">State</label><input id="profileState" name="state" autocomplete="address-level1" maxlength="100"></div>
     <div class="dash-field"><label for="profileCountry">Country</label><input id="profileCountry" name="country" autocomplete="country-name" maxlength="100"></div>
-    <div class="dash-field"><label for="profileEmail">Email address</label><input id="profileEmail" type="email" readonly disabled><div class="email-verify-row" style="margin-top:9px"><span id="emailVerificationState" class="dash-status-line">Checking verification status…</span><button class="email-verify-link" id="verifyEmailLink" type="button" hidden>Verify</button></div></div>
+    <div class="dash-field"><label for="profileEmail">Email address</label><div class="email-verify-fieldbox"><input id="profileEmail" type="email" readonly disabled><div class="email-verify-status-row"><span id="emailVerificationState" class="dash-status-line">Not verified</span><button class="email-verify-link" id="verifyEmailLink" type="button">Verify</button></div></div></div>
    </div><div class="dash-form-actions"><button class="dash-btn" id="saveProfile" type="submit"><i data-lucide="save"></i> Save profile</button><span class="dash-feedback" id="profileFeedback" role="status" aria-live="polite"></span></div></form></section></section>
    <section class="dash-view" id="view-farm"><div class="dash-section-head"><div><h2>Farm & business details</h2><p>Help us tailor products, support and services to your operation.</p></div></div><section class="dash-panel"><form id="farmForm"><div class="dash-form-grid">
     <div class="dash-field"><label for="customerType">I am a</label><select id="customerType"><option value="">Select customer type</option><option value="farmer">Farmer</option><option value="poultry farmer">Poultry farmer</option><option value="agribusiness">Agribusiness owner</option><option value="retailer">Retailer / distributor</option><option value="student">Student / learner</option><option value="service provider">Service provider</option><option value="other">Other</option></select></div>
@@ -214,11 +214,10 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  $("notificationModal").addEventListener("click",event=>{if(event.target===$("notificationModal"))closeNotificationModal()});
  document.addEventListener("keydown",event=>{if(event.key==="Escape")closeNotificationModal()});
  function renderEmailVerification(){
-  const verified=Boolean(currentUser?.email_confirmed_at);
+  const verified=Boolean(currentUser?.user_metadata?.agrolyst_email_verified);
   const state=$("emailVerificationState"),link=$("verifyEmailLink");
-  if(verified){state.innerHTML='<span class="email-verified"><i data-lucide="badge-check"></i> Verified</span>';link.hidden=true}
-  else{state.textContent="Email not verified";link.hidden=false}
-  if(window.lucide)window.lucide.createIcons();
+  if(verified){state.innerHTML='<span class="email-verified">Verified</span>';link.hidden=true}
+  else{state.textContent="Not verified";link.hidden=false}
  }
  const emailVerifyModal=$("emailVerifyModal"),emailVerifyFeedback=$("emailVerifyFeedback"),emailVerifyInstructions=$("emailVerifyInstructions"),emailVerifyCodeArea=$("emailVerifyCodeArea"),emailVerifySend=$("emailVerifySend"),emailVerifyConfirm=$("emailVerifyConfirm"),emailVerifyResend=$("emailVerifyResend");
  function closeEmailVerify(){emailVerifyModal.classList.remove("is-open");emailVerifyModal.setAttribute("aria-hidden","true")}
@@ -227,7 +226,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   if(!currentUser?.email){emailVerifyFeedback.textContent="There is no email address on this account.";emailVerifyFeedback.classList.add("error");return}
   emailVerifySend.disabled=true;emailVerifyResend.disabled=true;emailVerifyFeedback.classList.remove("error");emailVerifyFeedback.textContent="Sending verification code…";
   try{
-   const {data,error}=await client.auth.resend({type:"signup",email:currentUser.email,options:{emailRedirectTo:location.origin+"/account/#profile"}});
+   const {data,error}=currentUser.email_confirmed_at?await client.auth.signInWithOtp({email:currentUser.email,options:{shouldCreateUser:false,emailRedirectTo:location.origin+"/account/#profile"}}):await client.auth.resend({type:"signup",email:currentUser.email,options:{emailRedirectTo:location.origin+"/account/#profile"}});
    if(error)throw error;
    emailVerifyFeedback.textContent="If this email is eligible for verification, a code has been sent. Check your inbox and spam folder.";
    emailVerifyCodeArea.hidden=false;emailVerifyConfirm.hidden=false;emailVerifyResend.hidden=false;emailVerifySend.hidden=true;
@@ -244,10 +243,12 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   if(!/^\d{6}$/.test(token)){emailVerifyFeedback.textContent="Enter the 6-digit code from your email.";emailVerifyFeedback.classList.add("error");return}
   emailVerifyConfirm.disabled=true;emailVerifyFeedback.classList.remove("error");emailVerifyFeedback.textContent="Checking code…";
   try{
-   const {data,error}=await client.auth.verifyOtp({email:currentUser.email,token,type:"signup"});
+   const {data,error}=await client.auth.verifyOtp({email:currentUser.email,token,type:currentUser.email_confirmed_at?"email":"signup"});
    if(error)throw error;
-   if(!data.user?.email_confirmed_at)throw new Error("The email is not confirmed yet. Please try the code again.");
-   currentUser=data.user;renderEmailVerification();emailVerifyFeedback.textContent="Your email has been verified successfully.";emailVerifyInstructions.textContent="Your email address is now verified.";emailVerifyCodeArea.hidden=true;emailVerifyConfirm.hidden=true;emailVerifyResend.hidden=true;emailVerifySend.hidden=true;
+   const verifiedUser=data.user||currentUser;
+   const {data:updatedData,error:metadataError}=await client.auth.updateUser({data:{...(verifiedUser.user_metadata||{}),agrolyst_email_verified:true}});
+   if(metadataError)throw metadataError;
+   currentUser=updatedData.user||verifiedUser;renderEmailVerification();emailVerifyFeedback.textContent="Your email has been verified successfully.";emailVerifyInstructions.textContent="Your email address is now verified.";emailVerifyCodeArea.hidden=true;emailVerifyConfirm.hidden=true;emailVerifyResend.hidden=true;emailVerifySend.hidden=true;
    setTimeout(closeEmailVerify,1100);
   }catch(error){emailVerifyFeedback.textContent=error.message||"That code could not be verified. Request a new code and try again.";emailVerifyFeedback.classList.add("error")}
   finally{emailVerifyConfirm.disabled=false}
