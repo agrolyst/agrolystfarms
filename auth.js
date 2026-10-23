@@ -82,6 +82,8 @@ function initialiseGooglePopup() {
     client_id: googleClientId,
     ux_mode: "popup",
     auto_select: false,
+    use_fedcm_for_button: true,
+    button_auto_select: false,
     cancel_on_tap_outside: true,
     callback: async response => {
       if (!response || !response.credential) {
