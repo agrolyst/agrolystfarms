@@ -22,6 +22,7 @@
     const customColor = /^#[0-9a-fA-F]{6}$/.test(settings.customColor || "") ? settings.customColor : "#26784a";
     root.style.setProperty("--ag-custom-color", customColor);
     root.dataset.agHeaderLayout = ["top", "left", "right", "bottom"].includes(settings.layout) ? settings.layout : "top";
+    root.dataset.agNavDisplay = ["text", "icons", "both"].includes(settings.navDisplayStyle) ? settings.navDisplayStyle : "text";
   }
 
   applySavedAppearance();
@@ -85,6 +86,7 @@
 
   function closeMobileNav(header) {
     const nav = header.querySelector(".ag-shared-nav");
+    applyNavigationDisplay(header);
     const toggle = header.querySelector(".ag-shared-menu-toggle");
     nav?.classList.remove("is-open");
     toggle?.setAttribute("aria-expanded", "false");
@@ -200,6 +202,36 @@
     } catch (error) {
       console.info("Account navigation remains on sign-in until session state is available.", error);
     }
+  }
+
+  function applyNavigationDisplay(header) {
+    const setting = (() => { try { return JSON.parse(localStorage.getItem(appearanceStorageKey) || "{}").navDisplayStyle || "text"; } catch (error) { return "text"; } })();
+    const icons = {
+      "About Us": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/></svg>',
+      "Products": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>',
+      "Community": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1M16 5.5a3 3 0 0 1 0 5.8M18 14a5 5 0 0 1 3 5"/></svg>',
+      "Opportunities": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>',
+      "Narrative Changers": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v12H8l-4 3V5Z"/><path d="M8 9h8M8 13h5"/></svg>',
+      "Contact": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+      "Sign in": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/></svg>',
+      "My Account": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>'
+    };
+    header.querySelectorAll(".ag-shared-nav__link").forEach(link => {
+      if (link.querySelector(".ag-nav-label")) return;
+      const labelText = link.matches(".ag-shared-dropdown__toggle") ? link.childNodes[0]?.textContent?.trim() : link.textContent.trim();
+      const icon = icons[labelText];
+      if (!icon) return;
+      const label = document.createElement("span");
+      label.className = "ag-nav-label";
+      label.textContent = labelText;
+      if (link.matches(".ag-shared-dropdown__toggle")) {
+        const textNode = [...link.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+        if (textNode) textNode.textContent = "";
+      } else link.textContent = "";
+      link.insertAdjacentHTML("afterbegin", icon);
+      link.appendChild(label);
+    });
+    header.dataset.navDisplayApplied = "true";
   }
 
   function wireHeader(header) {
