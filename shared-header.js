@@ -91,28 +91,143 @@
   }
 
   async function syncAccountLink(header) {
-    const link = header.querySelector("#accountNav");
-    if (!link) return;
+    const trigger = header.querySelector("#accountNav");
+    const backdrop = header.querySelector("#agProfileBackdrop");
+    const dialog = header.querySelector("#agProfileDialog");
+    const closeButton = header.querySelector("#agProfileClose");
+    const googleButton = header.querySelector("#agProfileGoogle");
+    const status = header.querySelector("#agProfileStatus");
+    const signedOutActions = header.querySelector("#agProfileSignedOut");
+    const signedInActions = header.querySelector("#agProfileSignedIn");
+    if (!trigger || !backdrop || !dialog) return;
+
+    let client;
+    let activeUser = null;
+    let previousFocus = null;
+
+    const showStatus = (message, isError = false) => {
+      status.textContent = message || "";
+      status.classList.toggle("is-error", Boolean(isError));
+    };
+    const openDialog = () => {
+      previousFocus = document.activeElement;
+      backdrop.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+      dialog.focus();
+      closeButton?.focus();
+    };
+    const closeDialog = () => {
+      backdrop.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+      if (previousFocus && typeof previousFocus.focus === "function") previousFocus.focus();
+    };
+    const render = user => {
+      activeUser = user || null;
+      const label = header.querySelector("#agProfileLabel");
+      const avatar = header.querySelector("#agProfileAvatar");
+      const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "Profile";
+      label.textContent = "Profile";
+      avatar.textContent = user ? (displayName.trim()[0] || "P").toUpperCase() : "P";
+      trigger.setAttribute("aria-label", user ? "Open profile menu" : "Open sign-in and profile options");
+      signedOutActions.hidden = Boolean(user);
+      googleButton.hidden = Boolean(user);
+      signedInActions.hidden = !user;
+      header.querySelector("#agProfileTitle").textContent = user ? "Your profile" : "Sign in to Agrolyst";
+      header.querySelector("#agProfileIntro").textContent = user
+        ? "You are signed in. Manage your account, orders and preferences from your profile."
+        : "Sign in to manage your Agrolyst profile, orders and preferences.";
+      if (user) showStatus("Signed in as " + (user.email || displayName) + ".", false);
+      else showStatus("");
+    };
+
     try {
       const sdk = await ensureSupabase();
-      const client = sdk.createClient(supabaseUrl, supabasePublicKey);
-      const render = session => {
-        if (session?.user) {
-          link.textContent = "My Account";
-          link.href = "/account/";
-          link.setAttribute("aria-label", "Open your Agrolyst customer account");
-        } else {
-          link.textContent = "Sign in";
-          link.href = "/login/";
-          link.removeAttribute("aria-label");
-        }
-      };
+      client = sdk.createClient(supabaseUrl, supabasePublicKey);
       const { data } = await client.auth.getSession();
-      render(data?.session);
-      client.auth.onAuthStateChange((_event, session) => render(session));
+      render(data?.session?.user || null);
+      client.auth.onAuthStateChange((_event, session) => {
+        const wasSignedIn = Boolean(activeUser);
+        render(session?.user || null);
+        if (!wasSignedIn && session?.user && !backdrop.hidden) {
+          showStatus("Google sign-in successful. Your profile is ready.", false);
+        }
+      });
     } catch (error) {
-      console.info("Account navigation remains on sign-in until session state is available.", error);
+      console.info("Profile dialog could not read the current session.", error);
+      render(null);
     }
+
+    trigger.addEventListener("click", () => {
+      if (backdrop.hidden) openDialog();
+      else closeDialog();
+    });
+    closeButton?.addEventListener("click", closeDialog);
+    backdrop.addEventListener("click", event => {
+      if (event.target === backdrop) closeDialog();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !backdrop.hidden) closeDialog();
+    });
+
+    googleButton?.addEventListener("click", async () => {
+      if (!client) {
+        showStatus("Sign-in is still loading. Please try again.", true);
+        return;
+      }
+      // Open a blank window immediately so the browser does not block the OAuth popup.
+      const popup = window.open("about:blank", "agrolystGoogleSignIn", "popup=yes,width=520,height=680,resizable=yes,scrollbars=yes");
+      if (!popup) {
+        showStatus("Your browser blocked the sign-in popup. Allow popups for agrolystfarms.com and try again.", true);
+        return;
+      }
+      googleButton.disabled = true;
+      showStatus("Opening secure Google sign-in…");
+      try {
+        const { data, error } = await client.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: "https://agrolystfarms.com/callback/",
+            skipBrowserRedirect: true,
+            queryParams: { prompt: "select_account" }
+          }
+        });
+        if (error) throw error;
+        if (!data?.url) throw new Error("Google sign-in could not start. Please try again.");
+        popup.location.href = data.url;
+        showStatus("Complete sign-in in the Google popup. This page will update when you finish.");
+      } catch (error) {
+        try { popup.close(); } catch (_) {}
+        showStatus(error.message || "Google sign-in failed. Please try again.", true);
+      } finally {
+        googleButton.disabled = false;
+      }
+    });
+
+    header.querySelector("#agProfileSignOut")?.addEventListener("click", async () => {
+      if (!client) return;
+      const signOut = header.querySelector("#agProfileSignOut");
+      signOut.disabled = true;
+      try {
+        const { error } = await client.auth.signOut();
+        if (error) throw error;
+        render(null);
+        showStatus("You have been signed out.", false);
+      } catch (error) {
+        showStatus(error.message || "Could not sign out. Please try again.", true);
+      } finally {
+        signOut.disabled = false;
+      }
+    });
+
+    window.addEventListener("message", event => {
+      if (event.origin !== location.origin || event.data?.type !== "agrolyst:oauth-success") return;
+      client?.auth.getSession().then(({ data }) => {
+        render(data?.session?.user || null);
+        if (data?.session?.user) showStatus("Google sign-in successful. You are now signed in.", false);
+      }).catch(error => console.warn("Could not refresh the signed-in profile.", error));
+    });
   }
 
   function wireHeader(header) {
