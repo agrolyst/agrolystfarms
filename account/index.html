@@ -116,7 +116,21 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  const date=value=>value?new Date(value).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"}):"—";
  const titleCase=value=>String(value||"").replace(/_/g," ").replace(/\b\w/g,char=>char.toUpperCase());
  function setFeedback(id,text,error=false){$(id).textContent=text;$(id).classList.toggle("error",error)}
- function activateView(view){document.querySelectorAll(".dash-nav [data-view]").forEach(btn=>btn.classList.toggle("active",btn.dataset.view===view));document.querySelectorAll(".dash-view").forEach(panel=>panel.classList.toggle("active",panel.id==="view-"+view));if(view==="notifications")renderNotifications();if(view==="orders")renderOrders($("allOrders"));}
+ const dashboardViews=new Set(["overview","orders","profile","farm","notifications","preferences"]);
+ function activateView(view,updateUrl=true){
+  if(!dashboardViews.has(view))view="overview";
+  document.querySelectorAll(".dash-nav [data-view]").forEach(btn=>{const active=btn.dataset.view===view;btn.classList.toggle("active",active);if(active)btn.setAttribute("aria-current","page");else btn.removeAttribute("aria-current")});
+  document.querySelectorAll(".dash-view").forEach(panel=>panel.classList.toggle("active",panel.id==="view-"+view));
+  if(updateUrl&&location.hash!=="#"+view)history.pushState(null,"",location.pathname+location.search+"#"+view);
+  if(view==="notifications")renderNotifications();
+  if(view==="orders")renderOrders($("allOrders"));
+ }
+ function syncViewFromHash(){
+  const requested=decodeURIComponent(location.hash.slice(1));
+  const view=dashboardViews.has(requested)?requested:"overview";
+  activateView(view,false);
+  if(location.hash!=="#"+view)history.replaceState(null,"",location.pathname+location.search+"#"+view);
+ }
  const DASH_TOUR_KEY="account_dashboard_v1",DASH_TOUR_LOCAL_KEY="agrolyst-account-tour-v1:";
  const dashTourSteps=[
   {target:".dash-hero",title:"Welcome to your dashboard",text:"This is your Agrolyst home base. Use the marketplace shortcut to explore products and farm services whenever you need them."},
@@ -137,6 +151,9 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
 
  document.querySelectorAll(".dash-nav [data-view]").forEach(btn=>btn.addEventListener("click",()=>activateView(btn.dataset.view)));
  document.querySelectorAll("[data-open-view]").forEach(link=>link.addEventListener("click",event=>{event.preventDefault();activateView(link.dataset.openView)}));
+ window.addEventListener("hashchange",syncViewFromHash);
+ window.addEventListener("popstate",syncViewFromHash);
+ syncViewFromHash();
  function renderOrders(container){
   if(!orders.length){container.innerHTML='<div class="dash-empty"><div class="dash-empty-icon"><i data-lucide="package-open"></i></div><strong>No orders yet</strong><p>When you place an order through Agrolyst, you will find its status, total and order details here.</p><a class="dash-btn" href="/marketplace/">Explore marketplace <i data-lucide="arrow-up-right"></i></a></div>';if(window.lucide)window.lucide.createIcons();return}
   container.innerHTML=orders.slice(0,container.id==="recentOrders"?4:orders.length).map(order=>'<article class="dash-order"><div><div class="dash-order-number">'+escapeHTML(order.order_number||"Order")+'</div><div class="dash-order-meta">'+escapeHTML(date(order.created_at))+' · '+escapeHTML(order.fulfillment==="farm_pickup"?"Farm pickup":"Delivery")+' · '+(order.order_items?.length||0)+' item(s)</div></div><div class="dash-order-right"><div class="dash-order-total">'+money(order.total)+'</div><span class="dash-status '+escapeHTML(order.status)+'">'+escapeHTML(titleCase(order.status))+'</span></div></article>').join("");
@@ -170,9 +187,10 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   const n=notifications.find(item=>String(item.id)===String(id));if(!n||n.read_at)return;
   const timestamp=new Date().toISOString();
   try{
-   const {error}=await client.from("notifications").update({read_at:timestamp}).eq("id",n.id).eq("user_id",currentUser.id);
+   const {data:updatedNotification,error}=await client.from("notifications").update({read_at:timestamp}).eq("id",n.id).eq("user_id",currentUser.id).select("id,read_at").maybeSingle();
    if(error)throw error;
-   n.read_at=timestamp;updateNotificationCounts();renderNotifications();
+   if(!updatedNotification)throw new Error("The notification was not updated. Please refresh and try again.");
+   n.read_at=updatedNotification.read_at||timestamp;updateNotificationCounts();renderNotifications();
    if(fromModal&&activeNotificationId&&String(activeNotificationId)===String(id))$("notificationModalStatus").textContent="Marked as read.";
   }catch(error){console.error("Could not mark notification as read",error);if(fromModal)$("notificationModalStatus").textContent="Could not mark as read. Please close and try again."}
  }
@@ -182,9 +200,11 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   const button=$("markAllNotificationsRead");button.disabled=true;button.innerHTML='<i data-lucide="loader-circle"></i> Marking as read…';setFeedback("notificationFeedStatus","Marking all notifications as read…");
   try{
    const timestamp=new Date().toISOString();
-   const {error}=await client.from("notifications").update({read_at:timestamp}).eq("user_id",currentUser.id).is("read_at",null);
+   const {data:updatedNotifications,error}=await client.from("notifications").update({read_at:timestamp}).eq("user_id",currentUser.id).is("read_at",null).select("id");
    if(error)throw error;
-   notifications.forEach(n=>{if(!n.read_at)n.read_at=timestamp});
+   if(!updatedNotifications)throw new Error("Supabase did not confirm the update. Please try again.");
+   const updatedIds=new Set(updatedNotifications.map(item=>String(item.id)));
+   notifications.forEach(n=>{if(updatedIds.has(String(n.id))&&!n.read_at)n.read_at=timestamp});
    renderNotifications();setFeedback("notificationFeedStatus","All notifications have been marked as read.");
    if(activeNotificationId){const active=notifications.find(n=>String(n.id)===String(activeNotificationId));if(active?.read_at)$("notificationModalStatus").textContent="Marked as read."}
   }catch(error){console.error("Could not mark all notifications as read",error);setFeedback("notificationFeedStatus","Could not mark all notifications as read. Please try again.",true)}
