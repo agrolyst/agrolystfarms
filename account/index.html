@@ -277,24 +277,24 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  }
  const notifyPromoOverlay=$("notifyPromoOverlay");
  function closeNotifyPromo(){if(!notifyPromoOverlay)return;notifyPromoOverlay.classList.remove("is-open");notifyPromoOverlay.setAttribute("aria-hidden","true")}
- function showNotifyPromoIfNeeded(){if(!currentUser||!notifyPromoOverlay||totpPromoOverlay?.classList.contains("is-open")||currentProfile?.push_notifications_enabled===true||!("Notification" in window)||Notification.permission==="denied")return;let dismissed=false;try{dismissed=sessionStorage.getItem("agrolyst-notify-promo:"+currentUser.id)==="1"}catch(error){}if(!dismissed){notifyPromoOverlay.classList.add("is-open");notifyPromoOverlay.setAttribute("aria-hidden","false")}}
- function dismissNotifyPromo(){try{if(currentUser)sessionStorage.setItem("agrolyst-notify-promo:"+currentUser.id,"1")}catch(error){}closeNotifyPromo()}
+ async function showNotifyPromoIfNeeded(){if(!currentUser||!notifyPromoOverlay||totpPromoOverlay?.classList.contains("is-open"))return;let dismissed=false;try{dismissed=sessionStorage.getItem("agrolyst-notify-promo-v2:"+currentUser.id)==="1"}catch(error){}if(dismissed)return;try{const subscription=await getCurrentSubscription();if(subscription)return}catch(error){console.warn("Could not check this device's notification subscription",error)}notifyPromoOverlay.classList.add("is-open");notifyPromoOverlay.setAttribute("aria-hidden","false")}
+ function dismissNotifyPromo(){try{if(currentUser)sessionStorage.setItem("agrolyst-notify-promo-v2:"+currentUser.id,"1")}catch(error){}closeNotifyPromo()}
  $("notifyPromoSkip")?.addEventListener("click",dismissNotifyPromo);
  $("notifyPromoEnable")?.addEventListener("click",()=>{dismissNotifyPromo();activateView("preferences");enableNotifications.click()});
  function showTotpPromoIfNeeded(){
   if(!currentUser||totpState.textContent!=="Off"||!totpPromoOverlay)return;
   let dismissed=false;
-  try{dismissed=sessionStorage.getItem("agrolyst-totp-promo:"+currentUser.id)==="1"}catch(error){}
+  try{dismissed=sessionStorage.getItem("agrolyst-totp-promo-v2:"+currentUser.id)==="1"}catch(error){}
   if(!dismissed){totpPromoOverlay.classList.add("is-open");totpPromoOverlay.setAttribute("aria-hidden","false")}
  }
  $("totpPromoSkip")?.addEventListener("click",()=>{
-  try{if(currentUser)sessionStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
+  try{if(currentUser)sessionStorage.setItem("agrolyst-totp-promo-v2:"+currentUser.id,"1")}catch(error){}
   closeTotpPromo();
   showNotifyPromoIfNeeded();
  });
  $("totpPromoAdd")?.addEventListener("click",()=>{
   closeTotpPromo();
-  try{if(currentUser)localStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
+  try{if(currentUser)sessionStorage.setItem("agrolyst-totp-promo-v2:"+currentUser.id,"1")}catch(error){}
   activateView("preferences");
   $("totpEnable").click();
  });
@@ -311,7 +311,7 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   const welcomeKey="agrolyst-welcomed:"+user.id;let welcomedBefore=false;try{welcomedBefore=localStorage.getItem(welcomeKey)==="1";localStorage.setItem(welcomeKey,"1")}catch(error){}
   $("welcomeGreeting").textContent=welcomedBefore?"Welcome back,":"Welcome to Agrolyst,";
   showTotpPromoIfNeeded();
-  if(!totpPromoOverlay?.classList.contains("is-open"))showNotifyPromoIfNeeded();
+  if(!totpPromoOverlay?.classList.contains("is-open"))await showNotifyPromoIfNeeded();
   const [orderResult,notificationResult,productResult]=await Promise.all([
    client.from("orders").select("id,order_number,total,status,fulfillment,payment_state,created_at,order_items(id,product_name_snapshot,quantity,unit_label_snapshot)").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
    client.from("notifications").select("id,title,body,url,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
