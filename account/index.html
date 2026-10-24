@@ -277,18 +277,18 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  }
  const notifyPromoOverlay=$("notifyPromoOverlay");
  function closeNotifyPromo(){if(!notifyPromoOverlay)return;notifyPromoOverlay.classList.remove("is-open");notifyPromoOverlay.setAttribute("aria-hidden","true")}
- function showNotifyPromoIfNeeded(){if(!currentUser||!notifyPromoOverlay||totpPromoOverlay?.classList.contains("is-open")||currentProfile?.push_notifications_enabled===true||!("Notification" in window)||Notification.permission==="denied")return;let dismissed=false;try{dismissed=localStorage.getItem("agrolyst-notify-promo:"+currentUser.id)==="1"}catch(error){}if(!dismissed){notifyPromoOverlay.classList.add("is-open");notifyPromoOverlay.setAttribute("aria-hidden","false")}}
- function dismissNotifyPromo(){try{if(currentUser)localStorage.setItem("agrolyst-notify-promo:"+currentUser.id,"1")}catch(error){}closeNotifyPromo()}
+ function showNotifyPromoIfNeeded(){if(!currentUser||!notifyPromoOverlay||totpPromoOverlay?.classList.contains("is-open")||currentProfile?.push_notifications_enabled===true||!("Notification" in window)||Notification.permission==="denied")return;let dismissed=false;try{dismissed=sessionStorage.getItem("agrolyst-notify-promo:"+currentUser.id)==="1"}catch(error){}if(!dismissed){notifyPromoOverlay.classList.add("is-open");notifyPromoOverlay.setAttribute("aria-hidden","false")}}
+ function dismissNotifyPromo(){try{if(currentUser)sessionStorage.setItem("agrolyst-notify-promo:"+currentUser.id,"1")}catch(error){}closeNotifyPromo()}
  $("notifyPromoSkip")?.addEventListener("click",dismissNotifyPromo);
  $("notifyPromoEnable")?.addEventListener("click",()=>{dismissNotifyPromo();activateView("preferences");enableNotifications.click()});
  function showTotpPromoIfNeeded(){
   if(!currentUser||totpState.textContent!=="Off"||!totpPromoOverlay)return;
   let dismissed=false;
-  try{dismissed=localStorage.getItem("agrolyst-totp-promo:"+currentUser.id)==="1"}catch(error){}
+  try{dismissed=sessionStorage.getItem("agrolyst-totp-promo:"+currentUser.id)==="1"}catch(error){}
   if(!dismissed){totpPromoOverlay.classList.add("is-open");totpPromoOverlay.setAttribute("aria-hidden","false")}
  }
  $("totpPromoSkip")?.addEventListener("click",()=>{
-  try{if(currentUser)localStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
+  try{if(currentUser)sessionStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
   closeTotpPromo();
   showNotifyPromoIfNeeded();
  });
@@ -304,14 +304,14 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   currentUser=user;
   renderEmailVerification();
   await refreshTotpStatus();
-   showTotpPromoIfNeeded();
   let {data:profile,error:profileError}=await client.from("profiles").select("id,full_name,phone,created_at,updated_at,customer_type,business_name,farm_type,farm_scale,interests,address_line,city,state,country,onboarding_completed,push_notifications_enabled,marketing_opt_in").eq("id",user.id).maybeSingle();
   if(profileError){$("miniEmail").textContent="Could not load profile";setFeedback("profileFeedback","Unable to load profile details. Please refresh and try again.",true);console.error(profileError);return}
   if(!profile||!profile.onboarding_completed){location.replace("/onboarding/");return}
   fillProfile(profile);
   const welcomeKey="agrolyst-welcomed:"+user.id;let welcomedBefore=false;try{welcomedBefore=localStorage.getItem(welcomeKey)==="1";localStorage.setItem(welcomeKey,"1")}catch(error){}
   $("welcomeGreeting").textContent=welcomedBefore?"Welcome back,":"Welcome to Agrolyst,";
-  showNotifyPromoIfNeeded();
+  showTotpPromoIfNeeded();
+  if(!totpPromoOverlay?.classList.contains("is-open"))showNotifyPromoIfNeeded();
   const [orderResult,notificationResult,productResult]=await Promise.all([
    client.from("orders").select("id,order_number,total,status,fulfillment,payment_state,created_at,order_items(id,product_name_snapshot,quantity,unit_label_snapshot)").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
    client.from("notifications").select("id,title,body,url,read_at,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30),
