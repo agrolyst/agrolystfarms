@@ -85,6 +85,55 @@ body{background:#f4f7f0}
 @media(max-width:900px){.nu-featured{grid-template-columns:1fr}.nu-feature-card{min-height:470px}.nu-feature-side{grid-template-columns:repeat(2,minmax(0,1fr))}.nu-mini-feature{grid-template-columns:1fr;padding:12px}.nu-mini-feature img{width:100%;height:150px}.nu-news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nu-hero-content{margin-top:80px}}
 @media(max-width:600px){.nu-livebar-inner{width:calc(100% - 18px);gap:9px}.nu-live-label{font-size:.58rem;padding:8px}.nu-live-clock{display:none}.nu-ticker-track{gap:28px}.nu-hero,.nu-hero-inner{min-height:720px}.nu-hero-inner{padding-top:24px;padding-bottom:28px}.nu-hero-content{margin-top:75px}.nu-hero h1{font-size:clamp(3.2rem,15vw,5rem)}.nu-hero p{font-size:.98rem}.nu-carousel-controls{gap:7px;padding:10px;margin-top:32px}.nu-arrow{width:38px;height:38px}.nu-progress{width:42px}.nu-feature-card{min-height:440px}.nu-feature-side{grid-template-columns:1fr}.nu-mini-feature{grid-template-columns:115px 1fr;min-height:150px;padding:11px}.nu-mini-feature img{width:115px;height:128px}.nu-news-grid{grid-template-columns:1fr}.nu-card-img{height:230px}.nu-card-body{padding:21px}.nu-toolbar{padding:10px}.nu-section{padding:58px 0}}
 @media(prefers-reduced-motion:reduce){.nu-ticker-track,.nu-live-dot,.nu-hero-bg,.nu-kicker,.nu-hero h1,.nu-hero p,.nu-meta,.nu-hero-actions{animation:none!important}.nu-card.reveal-ready{opacity:1;transform:none}.nu-main *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Editorial direction: square-cornered, print-inspired layout and native inline SVG iconography */
+.nu-main{--nu-corner:2px}
+.nu-main *{border-radius:2px!important}
+.nu-live-dot{border-radius:50%!important}
+.nu-live-label,.nu-crumb,.nu-kicker,.nu-pill,.nu-btn,.nu-carousel-controls,.nu-arrow,.nu-dot,.nu-progress,.nu-eyebrow,.nu-category,.nu-search,.nu-filter button,.nu-note,.nu-newsletter,.nu-empty{border-radius:2px!important}
+.nu-hero{min-height:clamp(620px,78vh,820px)}
+.nu-hero-inner{min-height:clamp(620px,78vh,820px)}
+.nu-crumb{background:transparent;border-left:3px solid var(--nu-gold)!important;border-top:0!important;border-right:0!important;border-bottom:0!important;padding:5px 12px}
+.nu-kicker{background:transparent;border:0!important;padding:0;backdrop-filter:none}
+.nu-kicker:before{width:24px;height:2px;border-radius:0;box-shadow:none}
+.nu-hero h1{max-width:920px;letter-spacing:-.06em}
+.nu-btn{box-shadow:none!important;border-radius:2px!important}
+.nu-btn:hover{transform:translateY(-2px)}
+.nu-carousel-controls{background:transparent;border:0!important;border-top:1px solid #ffffff4a!important;backdrop-filter:none;padding:14px 0 0}
+.nu-arrow{border-radius:2px!important}
+.nu-dot{border-radius:0!important}
+.nu-progress{border-radius:0!important}
+.nu-section{padding:clamp(56px,7vw,88px) 0}
+.nu-section-head h2{letter-spacing:-.045em}
+.nu-eyebrow{background:transparent;border:0!important;border-left:3px solid #5a843e!important;padding:4px 0 4px 10px}
+.nu-feature-card{border-radius:2px!important;box-shadow:none}
+.nu-feature-card:after{background:linear-gradient(0deg,#06180ff5 0%,#06180f75 50%,#06180f08 100%)}
+.nu-feature-copy{left:clamp(22px,4vw,42px);right:clamp(22px,4vw,42px)}
+.nu-category{border-radius:2px!important;box-shadow:none}
+.nu-mini-feature{border-radius:2px!important;box-shadow:none;padding:0 0 18px;border:0;border-bottom:1px solid var(--nu-line);background:transparent}
+.nu-mini-feature:hover{transform:translateX(3px);box-shadow:none}
+.nu-mini-feature img{border-radius:2px!important}
+.nu-toolbar{background:transparent;border:0;border-bottom:1px solid var(--nu-line);border-radius:0!important;box-shadow:none;padding:0 0 18px}
+.nu-search{border-radius:2px!important;box-shadow:none}
+.nu-filter button{border-radius:2px!important}
+.nu-news-grid{gap:26px}
+.nu-card{border-radius:2px!important;box-shadow:none;border:0;border-bottom:2px solid #dce5d8;background:transparent}
+.nu-card:hover{transform:translateY(-4px);box-shadow:none;border-color:#729b5d}
+.nu-card-img{height:230px;border-radius:2px!important}
+.nu-card-body{padding:20px 0 24px}
+.nu-card h3{font-size:clamp(1.15rem,1.5vw,1.42rem)}
+.nu-card-meta{gap:10px}
+.nu-tag{border-bottom:1px solid #9db58d;padding-bottom:3px}
+.nu-note{background:#eaf2df;border-left:3px solid #87ae5d;border-radius:0!important}
+.nu-newsletter{border-radius:2px!important;box-shadow:none;border-top:3px solid var(--nu-gold)}
+.nu-newsletter:after{display:none}
+.nu-empty{border-radius:2px!important}
+.nu-read-link,.nu-end a{display:inline-flex;align-items:center;gap:9px}
+.nu-svg-icon{width:17px;height:17px;display:inline-block;vertical-align:middle;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nu-live-label .nu-live-dot{flex-shrink:0}
+@media(max-width:900px){.nu-mini-feature{grid-template-columns:130px 1fr;padding:0 0 16px}.nu-mini-feature img{width:130px;height:150px}.nu-card-img{height:210px}}
+@media(max-width:600px){.nu-hero,.nu-hero-inner{min-height:680px}.nu-mini-feature{grid-template-columns:110px 1fr}.nu-mini-feature img{width:110px;height:130px}.nu-card-body{padding:17px 0 22px}.nu-card-img{height:220px}.nu-newsletter{padding:25px 20px}}
+
 </style><title>Agrolyst Newsroom | Agrifood Stories and Updates</title><meta property="og:site_name" content="Agrolyst Integrated Farms and Services"><meta property="og:type" content="website"><meta property="og:title" content="News and Updates | Agrolyst Integrated Farms and Services"><meta property="og:description" content="Announcements, stories and updates from Agrolyst and the wider agricultural ecosystem."><meta property="og:url" content="https://agrolystfarms.com/news/"><meta property="og:image" content="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="News & Updates | Agrolyst Farms"><meta name="twitter:description" content="Agrifood stories, business insights, farm-to-market perspectives and updates from Agrolyst."><meta name="twitter:image" content="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85"><script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"News and Updates","url":"https://agrolystfarms.com/news/","description":"Agrifood stories, practical explainers and company updates from Agrolyst Integrated Farms and Services.","isPartOf":{"@type":"WebSite","name":"Agrolyst Integrated Farms and Services","url":"https://agrolystfarms.com/"}}</script></head><body><div data-shared-header-mount></div><div class="nu-livebar" aria-label="Newsroom headlines"><div class="nu-livebar-inner"><span class="nu-live-label"><i class="nu-live-dot"></i> Newsroom Live</span><div class="nu-ticker-window"><div class="nu-ticker-track" id="nu-ticker-track"><span class="nu-ticker-item">Farm to market · Stories from across the agrifood value chain</span><span class="nu-ticker-item">Farm business · Practical ideas for stronger decisions</span><span class="nu-ticker-item">Food systems · People, quality and innovation</span><span class="nu-ticker-item">Agrolyst · Explore learning and community resources</span><span class="nu-ticker-item">Farm to market · Stories from across the agrifood value chain</span><span class="nu-ticker-item">Farm business · Practical ideas for stronger decisions</span><span class="nu-ticker-item">Food systems · People, quality and innovation</span><span class="nu-ticker-item">Agrolyst · Explore learning and community resources</span></div></div><span class="nu-live-clock" id="nu-live-clock">AGROLYST / NG</span></div></div><main class="nu-main" id="top" tabindex="-1">
 <section class="nu-hero" aria-label="Featured Agrolyst news">
 <img class="nu-hero-bg" id="nu-hero-image" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=90" alt="" fetchpriority="high">
