@@ -215,6 +215,48 @@
     }
   };
 
+
+  const installPageLoader = () => {
+    if (document.getElementById("agrolyst-page-loader")) return;
+    const style = document.createElement("style");
+    style.id = "agrolyst-page-loader-style";
+    style.textContent = `
+      #agrolyst-page-loader{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:#07130d;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+      #agrolyst-page-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+      #agrolyst-page-loader img{display:block;width:112px;height:112px;max-width:30vw;max-height:30vw;object-fit:contain}
+      #agrolyst-page-loader .loader-label{position:absolute;top:calc(50% + 76px);color:#dce8df;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+      @media(prefers-reduced-motion:reduce){#agrolyst-page-loader{transition:none}}
+    `;
+    document.head.appendChild(style);
+    const loader = document.createElement("div");
+    loader.id = "agrolyst-page-loader";
+    loader.setAttribute("role", "status");
+    loader.setAttribute("aria-label", "Loading Agrolyst");
+    const img = document.createElement("img");
+    img.src = "https://s4.ezgif.com/tmp/ezgif-497b24faa1c745d7.gif";
+    img.alt = "";
+    img.decoding = "async";
+    img.onerror = () => { img.style.display = "none"; };
+    const label = document.createElement("span");
+    label.className = "loader-label";
+    label.textContent = "AGROLYST";
+    loader.append(img, label);
+    document.body.appendChild(loader);
+    let dismissed = false;
+    const dismiss = () => {
+      if (dismissed) return;
+      dismissed = true;
+      loader.classList.add("is-hidden");
+      window.setTimeout(() => loader.remove(), 350);
+    };
+    if (document.readyState === "complete") window.setTimeout(dismiss, 250);
+    else window.addEventListener("load", () => window.setTimeout(dismiss, 250), { once: true });
+    // Never leave the site covered if a third-party asset or page request stalls.
+    window.setTimeout(dismiss, 8000);
+  };
+
+  installPageLoader();
+
   const boot = () => {
     initialiseIcons();
     initialiseScrollMotion();
