@@ -4,21 +4,20 @@ const SUPABASE_ANON_KEY = "sb_publishable_j8SoLv73ssa13M_rAJwB6g_rPb8whHD";
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const form = document.getElementById("authForm");
 const statusEl = document.getElementById("status");
-async function routeSignedInUser(user) {
-  if (!user || !user.id) {
-    location.replace("/onboarding/");
-    return;
-  }
-  try {
-    const { data: profile, error } = await client.from("profiles")
-      .select("onboarding_completed").eq("id", user.id).maybeSingle();
-    if (error) throw error;
-    location.replace(profile && profile.onboarding_completed ? "/" : "/onboarding/");
-  } catch (error) {
-    console.warn("Unable to read onboarding state; sending customer to profile setup.", error);
-    location.replace("/onboarding/");
-  }
+let pendingMfaUser=null,pendingMfaFactorId=null;
+async function routeAfterAuthentication(user){
+ if(!user||!user.id){location.replace("/onboarding/");return}
+ try{const {data:profile,error}=await client.from("profiles").select("onboarding_completed").eq("id",user.id).maybeSingle();if(error)throw error;const next=new URLSearchParams(location.search).get("next");location.replace(profile&&profile.onboarding_completed?(next&&next.startsWith("/")&&!next.startsWith("//")?next:"/account/"):"/onboarding/")}catch(error){console.warn("Unable to read onboarding state; sending customer to profile setup.",error);location.replace("/onboarding/")}
 }
+function setMfaLoginStatus(message,isError=true){const el=document.getElementById("mfaLoginStatus");if(el){el.textContent=message;el.style.color=isError?"#a33e2c":"#176d37"}}
+function showMfaLogin(user,factorId){pendingMfaUser=user;pendingMfaFactorId=factorId;const o=document.getElementById("mfaLoginOverlay");o.classList.add("is-open");o.setAttribute("aria-hidden","false");document.getElementById("mfaLoginCode").value="";setMfaLoginStatus("Enter the current code from your authenticator app.",false);document.getElementById("mfaLoginCode").focus()}
+async function routeSignedInUser(user){
+ if(!user||!user.id){location.replace("/onboarding/");return}
+ try{const [{data:factors,error:fe},{data:assurance,error:ae}]=await Promise.all([client.auth.mfa.listFactors(),client.auth.mfa.getAuthenticatorAssuranceLevel()]);if(fe)throw fe;if(ae)throw ae;const verified=(factors?.totp||[]).filter(f=>f.status==="verified");if(verified.length&&assurance?.currentLevel!=="aal2"){showMfaLogin(user,verified[0].id);return}}catch(error){console.error("Could not verify authenticator requirement.",error);setStatus("We couldn't check your account's authenticator security. Please refresh and try again.");return}
+ await routeAfterAuthentication(user)
+}
+document.getElementById("mfaLoginForm")?.addEventListener("submit",async e=>{e.preventDefault();const code=document.getElementById("mfaLoginCode").value.trim(),button=document.getElementById("mfaLoginVerify");if(!/^\\d{6}$/.test(code)){setMfaLoginStatus("Enter the six-digit code from your authenticator app.");return}if(!pendingMfaFactorId||!pendingMfaUser){setMfaLoginStatus("Your verification session expired. Please sign in again.");return}button.disabled=true;setMfaLoginStatus("Verifying code…",false);try{const {data:challenge,error:ce}=await client.auth.mfa.challenge({factorId:pendingMfaFactorId});if(ce)throw ce;const {error:ve}=await client.auth.mfa.verify({factorId:pendingMfaFactorId,challengeId:challenge.id,code});if(ve)throw ve;document.getElementById("mfaLoginOverlay").classList.remove("is-open");document.getElementById("mfaLoginOverlay").setAttribute("aria-hidden","true");await routeAfterAuthentication(pendingMfaUser)}catch(error){setMfaLoginStatus(error.message||"That code could not be verified. Check your app and try again.")}finally{button.disabled=false}});
+document.getElementById("mfaLoginCancel")?.addEventListener("click",async()=>{await client.auth.signOut();pendingMfaUser=null;pendingMfaFactorId=null;document.getElementById("mfaLoginOverlay").classList.remove("is-open");document.getElementById("mfaLoginOverlay").setAttribute("aria-hidden","true");setStatus("You have been signed out.")});
 // Existing authenticated visitors go to profile setup only if it is incomplete.
 (async () => {
   const { data, error } = await client.auth.getSession();
