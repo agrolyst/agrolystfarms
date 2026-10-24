@@ -337,7 +337,21 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
    }
    if(!subscription){
     pushStage="creating browser push subscription";
-    subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:expectedApplicationKey});
+    // Validate that the browser can parse the public VAPID key before contacting its push service.
+    pushStage="checking the VAPID key with Web Crypto";
+    try {
+     await crypto.subtle.importKey("raw",expectedApplicationKey,{name:"ECDSA",namedCurve:"P-256"},false,["verify"]);
+    } catch(keyError) {
+     console.error("[Agrolyst push setup] VAPID key import failed",{name:keyError?.name,message:keyError?.message,keyLength:expectedApplicationKey.length,firstByte:expectedApplicationKey[0]});
+     throw new Error("The VAPID public key could not be parsed by this browser: "+(keyError?.message||keyError?.name||"unknown key error"));
+    }
+    pushStage="creating browser push subscription";
+    try {
+     subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:expectedApplicationKey});
+    } catch(subscriptionError) {
+     console.error("[Agrolyst push setup] Browser push service rejected subscription",{name:subscriptionError?.name,message:subscriptionError?.message,origin:location.origin,secureContext:isSecureContext,serviceWorker:registration.active?.scriptURL,keyLength:expectedApplicationKey.length});
+     throw new Error((subscriptionError?.name||"PushError")+": "+(subscriptionError?.message||"The browser push service rejected the subscription")+". The public key passed local format checks; this failure occurred in the browser push service, before saving to Supabase.");
+    }
    }
    pushStage="saving subscription to Supabase";
    const {error:subscribeError}=await client.rpc("register_push_subscription",{p_endpoint:subscription.endpoint,p_subscription:subscription.toJSON(),p_user_agent:navigator.userAgent});
