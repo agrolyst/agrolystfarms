@@ -221,10 +221,11 @@
     const style = document.createElement("style");
     style.id = "agrolyst-page-loader-style";
     style.textContent = `
-      #agrolyst-page-loader{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:#07130d;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+      #agrolyst-page-loader{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:#07130d;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
       #agrolyst-page-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-      #agrolyst-page-loader img{display:block;width:min(92vw,760px);height:min(92vw,760px);max-width:96vw;max-height:96vh;object-fit:cover;mix-blend-mode:normal}
-      #agrolyst-page-loader .loader-label{position:absolute;top:calc(50% + min(46vw,380px) + 12px);color:#dce8df;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+      #agrolyst-page-loader video{display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:cover;background:#07130d}
+      #agrolyst-page-loader .loader-fallback{position:relative;z-index:1;display:block;width:min(82vw,620px);max-height:72vh;object-fit:contain}
+      #agrolyst-page-loader .loader-label{position:absolute;z-index:2;bottom:8vh;color:#dce8df;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;text-shadow:0 2px 12px #07130d}
       @media(prefers-reduced-motion:reduce){#agrolyst-page-loader{transition:none}}
     `;
     document.head.appendChild(style);
@@ -232,27 +233,39 @@
     loader.id = "agrolyst-page-loader";
     loader.setAttribute("role", "status");
     loader.setAttribute("aria-label", "Loading Agrolyst");
-    const img = document.createElement("img");
-    img.src = "https://s4.ezgif.com/tmp/ezgif-497b24faa1c745d7.gif";
-    img.alt = "";
-    img.decoding = "async";
-    img.onerror = () => { img.style.display = "none"; };
+    const video = document.createElement("video");
+    video.src = "/download.mp4";
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.setAttribute("aria-hidden", "true");
+    video.addEventListener("contextmenu", event => event.preventDefault());
+    const fallback = document.createElement("img");
+    fallback.className = "loader-fallback";
+    fallback.src = "https://agrolystfarms.com/Agrolyst%20Logo.jpeg";
+    fallback.alt = "Agrolyst Integrated Farms and Services";
+    video.addEventListener("canplay", () => { fallback.style.display = "none"; }, { once: true });
+    video.addEventListener("error", () => { video.style.display = "none"; }, { once: true });
     const label = document.createElement("span");
     label.className = "loader-label";
     label.textContent = "AGROLYST";
-    loader.append(img, label);
+    loader.addEventListener("contextmenu", event => event.preventDefault());
+    loader.append(video, fallback, label);
     document.body.appendChild(loader);
     let dismissed = false;
+    const startedAt = Date.now();
+    let pageLoaded = document.readyState === "complete";
     const dismiss = () => {
-      if (dismissed) return;
+      if (dismissed || !pageLoaded || Date.now() - startedAt < 5000) return;
       dismissed = true;
       loader.classList.add("is-hidden");
       window.setTimeout(() => loader.remove(), 350);
     };
-    if (document.readyState === "complete") window.setTimeout(dismiss, 250);
-    else window.addEventListener("load", () => window.setTimeout(dismiss, 250), { once: true });
-    // Never leave the site covered if a third-party asset or page request stalls.
+    if (!pageLoaded) window.addEventListener("load", () => { pageLoaded = true; dismiss(); }, { once: true });
     window.setTimeout(dismiss, 5000);
+    video.play().catch(() => {});
   };
 
   installPageLoader();
