@@ -332,6 +332,15 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
  $("totpEnable").addEventListener("click",async()=>{
   const button=$("totpEnable");button.disabled=true;showTotpStatus("Preparing authenticator setup…");
   try{
+   // Supabase keeps an unverified factor if the user closes setup before confirming it.
+   // Remove only the unfinished Agrolyst factor so the user can restart and get a fresh QR code.
+   const {data:factorData,error:factorListError}=await client.auth.mfa.listFactors();
+   if(factorListError)throw factorListError;
+   const unfinished=(factorData?.totp||[]).filter(f=>f.status==="unverified"&&f.friendly_name==="Agrolyst authenticator");
+   for(const factor of unfinished){
+    const {error:removeError}=await client.auth.mfa.unenroll({factorId:factor.id});
+    if(removeError)throw removeError;
+   }
    const {data,error}=await client.auth.mfa.enroll({factorType:"totp",friendlyName:"Agrolyst authenticator"});
    if(error)throw error;
    totpFactorId=data.id;totpEnrollmentPending=true;
