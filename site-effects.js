@@ -223,8 +223,8 @@
     style.textContent = `
       #agrolyst-page-loader{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:#07130d;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
       #agrolyst-page-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-      #agrolyst-page-loader img{display:block;width:min(78vw,520px);height:min(78vw,520px);max-width:92vw;max-height:92vh;object-fit:contain;mix-blend-mode:screen}
-      #agrolyst-page-loader .loader-label{position:absolute;top:calc(50% + min(39vw,260px) + 18px);color:#dce8df;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+      #agrolyst-page-loader img{display:block;width:min(92vw,760px);height:min(92vw,760px);max-width:96vw;max-height:96vh;object-fit:cover;mix-blend-mode:normal}
+      #agrolyst-page-loader .loader-label{position:absolute;top:calc(50% + min(46vw,380px) + 12px);color:#dce8df;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase}
       @media(prefers-reduced-motion:reduce){#agrolyst-page-loader{transition:none}}
     `;
     document.head.appendChild(style);
