@@ -266,6 +266,28 @@ html[data-ag-accent="blue"] .account-dashboard{--dash-green:#163c69;--dash-leaf:
   $("customerType").value=profile.customer_type||"";$("businessName").value=profile.business_name||"";$("farmType").value=profile.farm_type||"";$("farmScale").value=profile.farm_scale||"";$("interests").value=(profile.interests||[]).join(", ");renderInterests(profile.interests||[]);
  }
  function renderInterests(items){$("interestChips").innerHTML=items.length?items.map(item=>'<span class="dash-interest">'+escapeHTML(item)+'</span>').join(""):'<span class="dash-status-line">No interests added yet. Add some to personalise your experience.</span>'}
+ const totpPromoOverlay=$("totpPromoOverlay");
+ function closeTotpPromo(){
+  if(!totpPromoOverlay)return;
+  totpPromoOverlay.classList.remove("is-open");
+  totpPromoOverlay.setAttribute("aria-hidden","true");
+ }
+ function showTotpPromoIfNeeded(){
+  if(!currentUser||totpState.textContent!=="Off"||!totpPromoOverlay)return;
+  let dismissed=false;
+  try{dismissed=localStorage.getItem("agrolyst-totp-promo:"+currentUser.id)==="1"}catch(error){}
+  if(!dismissed){totpPromoOverlay.classList.add("is-open");totpPromoOverlay.setAttribute("aria-hidden","false")}
+ }
+ $("totpPromoSkip")?.addEventListener("click",()=>{
+  try{if(currentUser)localStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
+  closeTotpPromo();
+ });
+ $("totpPromoAdd")?.addEventListener("click",()=>{
+  closeTotpPromo();
+  try{if(currentUser)localStorage.setItem("agrolyst-totp-promo:"+currentUser.id,"1")}catch(error){}
+  activateView("preferences");
+  $("totpEnable").click();
+ });
  async function loadDashboard(){
   const {data:{user},error}=await client.auth.getUser();
   if(error||!user){location.replace("/login/?next=%2Faccount%2F");return}
